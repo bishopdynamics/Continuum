@@ -1,0 +1,16 @@
+# copyrighted Half-Life assets — never distribute (see docs/research/00)
+gamedata/
+install/
+
+# derived locally from the user's assets — never ship (derived-work risk)
+cache/
+
+# external clones / worktrees (own git repos)
+xash3d-fwgs/
+hlsdk-portable/
+hlsdk-branches/
+
+# local build deps (SDL2 from source)
+.deps/
+
+.claude/
