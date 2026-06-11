@@ -21,6 +21,10 @@ Level streaming for Xash3D: play Half-Life 1 start to finish with zero loading s
 - M4a complete: seamless transitions — no loading plaque (`cl_seamless_changelevel`),
   unthrottled handshake, drop-loop bugfix. Revisit transition = **~20 ms (~1 frame)**,
   frozen-frame cut, music continuous (docs/research/12).
+- M4b complete: sound continuity — sounds on crossing entities (NPC speech, weapons,
+  suit VOX) resume at their exact sample position after the swap
+  (`sv_transition_sounds`, docs/research/13). Engine work is committed on the
+  `streaming` branch of `xash3d-fwgs/`.
 
 ## Build quickstart
 See docs/research/07-m0-baseline-measurements.md "Build setup". Run:
