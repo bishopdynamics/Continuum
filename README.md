@@ -25,6 +25,9 @@ Level streaming for Xash3D: play Half-Life 1 start to finish with zero loading s
   suit VOX) resume at their exact sample position after the swap
   (`sv_transition_sounds`, docs/research/13). Engine work is committed on the
   `streaming` branch of `xash3d-fwgs/`.
+- M5 complete: whole-campaign preload — `world_preload` + generated
+  `streampreload.cfg` warm the residency cache behind the menu (96 maps, ~1.8 s,
+  ~490 MB). No transition ever loads a world from disk again (docs/research/14).
 
 ## Build quickstart
 See docs/research/07-m0-baseline-measurements.md "Build setup". Run:
