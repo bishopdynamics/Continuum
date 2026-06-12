@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Game Picker (cards) — unified menu mockup</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .card-row { top: 300px; }
+</style>
+</head>
+<body data-back="01-root.html">
+<div class="stage">
+  <div class="backdrop" id="bd" style="background-image:url('assets/valve.png')"></div>
+  <div class="vignette"></div>
+  <div class="scanline"></div>
+
+  <div class="screen-title">Game<small>Choose a campaign</small></div>
+  <div class="context">Now Playing<br><b>Half-Life</b></div>
+
+  <div class="card-row" data-nav="row">
+    <div class="card focused" data-focusable data-href="03-game-page.html" data-bg="assets/valve.png">
+      <div class="art" style="background-image:url('assets/valve.png')"></div>
+      <div class="tag">Current</div>
+      <div class="label">
+        <div class="name">Half-Life</div>
+        <div class="meta">Valve · 1998 · 96 maps</div>
+      </div>
+    </div>
+    <div class="card" data-focusable data-bg="assets/gearbox.png">
+      <div class="art" style="background-image:url('assets/gearbox.png')"></div>
+      <div class="label">
+        <div class="name">Opposing Force</div>
+        <div class="meta">Gearbox · 1999 · 43 maps</div>
+      </div>
+    </div>
+    <div class="card" data-focusable data-bg="assets/bshift.png">
+      <div class="art" style="background-image:url('assets/bshift.png')"></div>
+      <div class="label">
+        <div class="name">Blue Shift</div>
+        <div class="meta">Gearbox · 2001 · 37 maps</div>
+      </div>
+    </div>
+    <div class="card" data-focusable data-bg="assets/hunger.png">
+      <div class="art" style="background-image:url('assets/hunger.png')"></div>
+      <div class="label">
+        <div class="name">They Hunger</div>
+        <div class="meta">Neil Manke · 2001 · 63 maps</div>
+      </div>
+    </div>
+    <div class="card" data-focusable data-bg="assets/uplink.png">
+      <div class="art" style="background-image:url('assets/uplink.png')"></div>
+      <div class="label">
+        <div class="name">Uplink</div>
+        <div class="meta">Valve · 1999 · 10 maps</div>
+      </div>
+    </div>
+    <div class="card" data-focusable data-bg="assets/dayone.png">
+      <div class="art" style="background-image:url('assets/dayone.png')"></div>
+      <div class="label">
+        <div class="name">Day One</div>
+        <div class="meta">Valve · 1998 · 27 maps</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span class="pair"><span class="glyph a">A</span> Select</span>
+    <span class="pair"><span class="glyph b">B</span> Back</span>
+    <span class="spacer"></span>
+    <span class="pair" style="color:var(--ink-faint)">Switching game restarts the engine</span>
+  </div>
+</div>
+<script src="nav.js"></script>
+<script>
+  document.addEventListener('navfocus', (e) => {
+    const bg = e.detail?.dataset.bg;
+    if (bg) document.getElementById('bd').style.backgroundImage = `url('${bg}')`;
+  });
+</script>
+</body>
+</html>

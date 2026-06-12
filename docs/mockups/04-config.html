@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Configuration — unified menu mockup</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-back="01-root.html">
+<div class="stage">
+  <div class="backdrop" style="background-image:url('assets/valve.png')"></div>
+  <div class="vignette"></div>
+  <div class="scanline"></div>
+
+  <div class="screen-title">Configuration<small>One config, every game</small></div>
+  <div class="context">Applies To<br><b>All Games</b></div>
+
+  <div class="tab-bar">
+    <span class="bumper"><span class="glyph wide">LB</span></span>
+    <span class="tab active">Video</span>
+    <span class="tab">Audio</span>
+    <span class="tab">Controls</span>
+    <span class="tab">Interface</span>
+    <span class="tab">Advanced</span>
+    <span class="bumper"><span class="glyph wide">RB</span></span>
+  </div>
+
+  <div class="settings">
+    <div class="row focused" data-focusable>
+      <div class="label">Resolution<small>Render and window size</small></div>
+      <div class="spin">
+        <span class="arrow">&#9664;</span>
+        <span class="val">2560 &times; 1440</span>
+        <span class="arrow">&#9654;</span>
+      </div>
+    </div>
+    <div class="row" data-focusable>
+      <div class="label">Display Mode</div>
+      <div class="spin">
+        <span class="arrow">&#9664;</span>
+        <span class="val">Borderless</span>
+        <span class="arrow">&#9654;</span>
+      </div>
+    </div>
+    <div class="row" data-focusable>
+      <div class="label">Field of View</div>
+      <div class="hslider">
+        <div class="track">
+          <div class="fill" style="width:62%"></div>
+          <div class="knob" style="left:62%"></div>
+        </div>
+        <span class="num">106</span>
+      </div>
+    </div>
+    <div class="row" data-focusable>
+      <div class="label">V-Sync</div>
+      <div class="toggle on"><div class="dot"></div></div>
+    </div>
+    <div class="row" data-focusable>
+      <div class="label">Button Glyphs<small>Shown in menus and hints</small></div>
+      <div class="spin">
+        <span class="arrow">&#9664;</span>
+        <span class="val">Auto &middot; Xbox</span>
+        <span class="arrow">&#9654;</span>
+      </div>
+    </div>
+    <div class="row" data-focusable>
+      <div class="label">Glyph Preview</div>
+      <div class="glyph-strip">
+        <span class="glyph a">A</span><span class="glyph b">B</span>
+        <span class="glyph x">X</span><span class="glyph y">Y</span>
+        <span style="color:var(--ink-faint); margin:0 8px">or</span>
+        <span class="glyph ps cross">&#10005;</span><span class="glyph ps circle">&#9675;</span>
+        <span class="glyph ps">&#9633;</span><span class="glyph ps">&#9651;</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="side-info">
+    <h3>Unified Configuration</h3>
+    Settings here are written once and shared by every game — Half-Life,
+    Opposing Force, Blue Shift, They Hunger, Uplink and Day One all read the
+    same resolution, audio and control bindings. No more setting up each game
+    separately.
+  </div>
+
+  <div class="legend">
+    <span class="pair"><span class="glyph a">A</span> Change</span>
+    <span class="pair"><span class="glyph b">B</span> Back</span>
+    <span class="pair"><span class="glyph wide">LB</span><span class="glyph wide">RB</span> Section</span>
+    <span class="spacer"></span>
+    <span class="pair"><span class="glyph x">X</span> Restore Defaults</span>
+  </div>
+</div>
+<script src="nav.js"></script>
+</body>
+</html>
