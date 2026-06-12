@@ -35,8 +35,10 @@ with continuous music and sound.** Run it: `tools/play-hl1.sh`.
 - Polish: resource-probe elimination (docs/research/15), map name overlay
   (`scr_drawmapname`), stuffcmds and drop-loop engine bugfixes (upstream candidates).
 - **Validation complete: full HL1 campaign playthrough, seamless, zero issues
-  (2026-06-11).** Next: expansions (Opposing Force, Blue Shift), They Hunger,
-  Uplink; then Phase 2 local stitching evaluation (docs/SYNTHESIS.md).
+  (2026-06-11).** Phase 2 stitching evaluated and shelved — every HL1 transition
+  area blocks line of sight into the next map by design, so the invisible swap is
+  already perceptually perfect (docs/SYNTHESIS.md). Next: expansions (Opposing
+  Force, Blue Shift), They Hunger, Uplink; upstreaming the engine fixes.
 
 ## Build quickstart
 See docs/research/07-m0-baseline-measurements.md "Build setup". Run:

@@ -63,6 +63,17 @@ throwaway work for Phase 2; it is its foundation.
   with zero loading screens — for ALL 98 edges including teleports and elevators.
 
 ### Phase 2 — Local stitching for walk-through edges (true seamlessness)
+
+> **VERDICT (2026-06-11, after full-campaign validation): NOT NEEDED for HL1-family
+> content.** Valve designed every transition area to block line of sight into the
+> next map (S-bend corridors, airlocks, elevators, track bends) — a GoldSrc-era
+> necessity that makes the invisible atomic swap perceptually identical to true
+> stitching. Empirical confirmation: a complete attentive playthrough on Phase 1
+> noticed zero transitions. The remaining benefit (removing one already-imperceptible
+> frozen frame) cannot justify the hardest engineering in this plan (dual coordinate
+> spaces, PVS merging, the catalogued inconsistent-transform anomalies). Phase 2 is
+> shelved unless future content (custom maps with open transition sightlines)
+> motivates it. The section below is kept as the design record.
 - For edges the preprocessing stage certifies as stitchable (no overlap conflict,
   consistent transform — the majority of corridor transitions): make the neighbor map
   resident in the active map's space as an offset SOLID_BSP sub-world, using the
@@ -101,4 +112,6 @@ throwaway work for Phase 2; it is its foundation.
 4. **M3 — Resident world models** (don't free on changelevel; load-once policy).
 5. **M4 — The atomic swap** (no teardown/reconnect/plaque) — the heart of Phase 1.
 6. **M5 — Asset preload union** (client textures/sounds) → measure: is the swap ≤1 frame?
-7. Then evaluate Phase 2 stitching with real numbers in hand.
+7. ~~Then evaluate Phase 2 stitching with real numbers in hand.~~ Evaluated:
+   shelved — transition areas block all sightlines by design, Phase 1 is
+   perceptually complete (see Phase 2 verdict above).
