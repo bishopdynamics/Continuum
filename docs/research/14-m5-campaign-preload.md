@@ -50,9 +50,14 @@ first visits at the ~20 ms revisit level:
 
 ## Caveats
 
-- `vid_restart` drops the residency cache (render data can't be recreated);
-  re-exec `streampreload.cfg` afterwards. Game switches (`game gearbox`) need
-  their own generated cfg + autoexec hook — expansions come later anyway.
+- ~~`vid_restart` drops the residency cache~~ — **corrected after
+  verification**: FWGS has no `vid_restart`; resolution/fullscreen changes go
+  through `VID_SetMode` with the GL context preserved, and the cache survives
+  them (tested: mode change before and during a game, both followed by
+  cache-hit restores at the next map load/transition). The cache only drops
+  on engine shutdown and on game switches (`CL_UnloadProgs` →
+  `Mod_ClearUserData`), where the new game's own autoexec re-warms it — each
+  game dir needs its generated cfg + autoexec hook (expansions pass, later).
 - Preload is refused during an active server by design; dynamic neighbor
   warming mid-game would need a cache-fill path that doesn't touch slot #0
   (Phase 2 territory, together with stitching).
