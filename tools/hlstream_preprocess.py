@@ -194,12 +194,23 @@ def write_preload_cfg(path, order):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("maps_dir", type=Path)
+    ap.add_argument("maps_dir", type=Path,
+                    help="maps directory of BSPs, or an existing mapgraph .json "
+                         "(for games whose maps live inside pak archives)")
     ap.add_argument("-o", "--out", type=Path, default=Path("mapgraph.json"))
     ap.add_argument("--campaign-only", action="store_true")
     ap.add_argument("--preload-cfg", type=Path, default=None,
                     help="also write a streampreload cfg (world_preload per connected campaign map)")
     args = ap.parse_args()
+
+    if args.maps_dir.suffix == ".json":
+        # reuse a previously-built graph (BSPs may be inside paks)
+        g = json.loads(args.maps_dir.read_text())
+        if args.preload_cfg:
+            order = preload_order(g["maps"], g["edges"])
+            write_preload_cfg(args.preload_cfg, order)
+            print(f"wrote {args.preload_cfg} ({len(order)} maps) from {args.maps_dir}")
+        return
 
     nodes, triggers = build_graph(args.maps_dir, args.campaign_only)
     edges, anomalies = build_edges(nodes, triggers)

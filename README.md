@@ -37,8 +37,11 @@ with continuous music and sound.** Run it: `tools/play-hl1.sh`.
 - **Validation complete: full HL1 campaign playthrough, seamless, zero issues
   (2026-06-11).** Phase 2 stitching evaluated and shelved — every HL1 transition
   area blocks line of sight into the next map by design, so the invisible swap is
-  already perceptually perfect (docs/SYNTHESIS.md). Next: expansions (Opposing
-  Force, Blue Shift), They Hunger, Uplink; upstreaming the engine fixes.
+  already perceptually perfect (docs/SYNTHESIS.md).
+- Expansions pass complete (docs/research/16): Opposing Force, Blue Shift,
+  They Hunger and Uplink all preload + stream the same way. Launchers:
+  `tools/play-opfor.sh`, `play-bshift.sh`, `play-hunger.sh`, `play-uplink.sh`.
+  Playthrough validation in progress. Next: upstreaming the engine fixes.
 
 ## Build quickstart
 See docs/research/07-m0-baseline-measurements.md "Build setup". Run:
