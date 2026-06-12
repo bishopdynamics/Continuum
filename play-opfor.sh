@@ -5,10 +5,10 @@
 # Game (or load a save) — every transition is a single frozen frame.
 #
 # Extra args are passed to the engine, e.g.:
-#   tools/play-opfor.sh -windowed          # windowed mode
-#   tools/play-opfor.sh -dev 2             # show [streamprof] transition timings
+#   ./play-opfor.sh -windowed          # windowed mode
+#   ./play-opfor.sh -dev 2             # show [streamprof] transition timings
 
-cd "$(dirname "$0")/../install" || exit 1
+cd "$(dirname "$0")/install" || exit 1
 
 if [ ! -x ./xash3d ]; then
     echo "engine not built — run tools/build-engine.sh first" >&2

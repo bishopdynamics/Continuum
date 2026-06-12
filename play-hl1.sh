@@ -5,11 +5,11 @@
 # New Game (or load a save) — every transition is a single frozen frame.
 #
 # Extra args are passed to the engine, e.g.:
-#   tools/play-hl1.sh -windowed          # windowed mode
-#   tools/play-hl1.sh -dev 2             # show [streamprof] transition timings
-#   tools/play-hl1.sh +map c1a0          # jump straight to a map
+#   ./play-hl1.sh -windowed          # windowed mode
+#   ./play-hl1.sh -dev 2             # show [streamprof] transition timings
+#   ./play-hl1.sh +map c1a0          # jump straight to a map
 
-cd "$(dirname "$0")/../install" || exit 1
+cd "$(dirname "$0")/install" || exit 1
 
 if [ ! -x ./xash3d ]; then
     echo "engine not built — run tools/build-engine.sh first" >&2

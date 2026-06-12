@@ -4,7 +4,7 @@ Level streaming for Xash3D: play Half-Life 1 start to finish with zero loading s
 
 **Goal achieved (2026-06-11): full retail HL1 campaign played through seamlessly —
 no loading screens, no issues. Transitions are a single frozen frame (~21–25 ms)
-with continuous music and sound.** Run it: `tools/play-hl1.sh`.
+with continuous music and sound.** Run it: `./play-hl1.sh`.
 
 ## Layout
 - `xash3d-fwgs/` — clone of FWGS upstream engine (our base)
@@ -40,7 +40,7 @@ with continuous music and sound.** Run it: `tools/play-hl1.sh`.
   already perceptually perfect (docs/SYNTHESIS.md).
 - Expansions pass complete (docs/research/16): Opposing Force, Blue Shift,
   They Hunger and Uplink all preload + stream the same way. Launchers:
-  `tools/play-opfor.sh`, `play-bshift.sh`, `play-hunger.sh`, `play-uplink.sh`.
+  `./play-opfor.sh`, `play-bshift.sh`, `play-hunger.sh`, `play-uplink.sh` (project root).
   Playthrough validation in progress. Next: upstreaming the engine fixes.
 
 ## Build quickstart
