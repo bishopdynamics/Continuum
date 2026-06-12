@@ -4,17 +4,13 @@ My running notes
 
 ## Small things
 
-[none currently — 2026-06-12 round 3 done: glyph transparency fixed (QM_DRAWTRANS),
-multiplayer Disconnect now confirms like Main Menu does.]
+[none currently — 2026-06-12 round 4 done: mid-game menu = Resume/Save/Load/Main
+Menu/Config/Quit (Game hidden in-game), quit text reworded, OSK rebuilt to spec:
+X backspace, Y space, LT shift, B/RT done, START cancel, LB/RB text cursor,
+glyph legend, typed-text preview strip, pad-auto mode (hidden until A even with
+osk_enable off). NOTE: pad-button paths verified by code + keyboard simulation —
+give it a spin with the DualSense to confirm feel.]
 
-## Remaining pages to modernize
-
-[all done 2026-06-12: Load Game + Save Game (one Continuum screen — save list,
-screenshot preview, New Save slot, overwrite/delete confirms) and Character Setup
-(name, model spinner, shirt/pants colors with live remap, 3D preview). Every page
-reachable from the Continuum UI is now Continuum-styled. Not carried over from the
-stock pages: spray-logo picker and the voice-chat settings (stock customize had
-them) — say the word if you want either added.]
 
 ## Big things
 
