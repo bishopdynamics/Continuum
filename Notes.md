@@ -4,14 +4,16 @@ My running notes
 
 ## Small things
 
-- for the mid-game menu (where it has "resume"): can we add "Main Menu" button? User wants a way to quit the campaign they are playing, and return to the root menu.
+[none currently — 2026-06-12 round 2 done: in-game Main Menu/Disconnect button
+(confirms in SP), A/B/X/Y/L1/R1 shown as glyphs in bindings, INPUT section
+restructure ("Input Bindings" on top, "Mouse Sensitivity"). Bonus fix: cancelling
+a rebind no longer wipes a fully-bound action.]
 
-## Medium things
+## Remaining pages to modernize
 
-[none currently — 2026-06-12 round done: open game list (any installed mod streams),
-single play-continuum.sh launcher, Continuum bindings + gamepad + multiplayer screens,
-themed OK/Cancel dialogs. One stock page remains reachable: Character Setup
-(player model/colors) under Multiplayer.]
+- load game
+- save game
+- multiplayer -> character setup
 
 ## Big things
 
@@ -23,7 +25,7 @@ themed OK/Cancel dialogs. One stock page remains reachable: Character Setup
 - need to create build_all.sh, to build for distribution
   - windows x86, linux x86/arm64, macos arm64
   - other platforms must built it themselves
-
+- the console takes a long time to open on higher resolutions, feels like the console-open animation is hardcoded as a certain pixels per second, instead of normalized to screen size.
 
 ## Insane things
 
@@ -39,7 +41,7 @@ Some of these ideas mess with core gameplay, and would definitely be default-off
   - disable flashlight battery (infinite battery)
   - unlink flashlight battery from Oxygen level (cant hold breath as long with flashlight on currently)
   - add "always run" toggle
-  - unify jump/swim-up and crouch-swimdown: currently separate keybindings for jump and swim-up, and users often dont use swim up/down as a result. 
+  - unify jump/swim-up and crouch-swimdown: currently separate keybindings for jump and swim-up, and users often dont use swim up/down as a result. enabling this setting causes the jump key to also do swim-up, and crouch to also do swim-down
 
 
 ## Documentation
@@ -49,7 +51,7 @@ Some of these ideas mess with core gameplay, and would definitely be default-off
   - There is no modified or additional content or gameplay
   - supported expansions/mods list is same as upstream xash3d-fwgs
   - This is:
-    - a new unified menu system, with a few more (existing) settings exposed
+    - a new unified menu system, with a few more (existing) settings exposed; mostly just a new "theme"
     - a level streaming system (no more loading screens)
   - 
 - Capture a 10fps video tour of new menu, convert to GIF so we can use it in the Readme.md
