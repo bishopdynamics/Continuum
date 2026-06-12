@@ -4,12 +4,13 @@ My running notes
 
 ## Small things
 
-[none currently — 2026-06-12 round 4 done: mid-game menu = Resume/Save/Load/Main
-Menu/Config/Quit (Game hidden in-game), quit text reworded, OSK rebuilt to spec:
-X backspace, Y space, LT shift, B/RT done, START cancel, LB/RB text cursor,
-glyph legend, typed-text preview strip, pad-auto mode (hidden until A even with
-osk_enable off). NOTE: pad-button paths verified by code + keyboard simulation —
-give it a spin with the DualSense to confirm feel.]
+[none currently — 2026-06-12 round 5 done: character preview pane sized to never
+overlap the rows; OSK takes d-pad now (raw K_DPAD_* was falling through to the
+menu); the 2-3-letter jumps were an engine bug — the stick-to-dpad simulation
+reported threshold-crossing edges and double-edge-detected, so analog jitter
+hammered press/release pairs. Now state-based with hysteresis; this also fixes
+stick navigation skipping in regular menus. Stick now works in in-game chat too.
+Verify the stick/d-pad feel with the DualSense.]
 
 
 ## Big things
@@ -51,6 +52,7 @@ Some of these ideas mess with core gameplay, and would definitely be default-off
   - This is not a mod or a "remaster"
   - There is no modified or additional content or gameplay
   - supported expansions/mods list is same as upstream xash3d-fwgs
+  - not really tuned for multiplayer
   - This is:
     - a new unified menu system, with a few more (existing) settings exposed; mostly just a new "theme"
     - a level streaming system (no more loading screens)
