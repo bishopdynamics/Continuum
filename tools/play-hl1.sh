@@ -23,4 +23,4 @@ if [ ! -f valve/streampreload.cfg ]; then
         -o ../cache/mapgraph-hl1.json --preload-cfg valve/streampreload.cfg || exit 1
 fi
 
-exec ./xash3d -log "$@"
+exec ./xash3d -console -log "$@"

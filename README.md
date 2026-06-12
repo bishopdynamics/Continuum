@@ -2,6 +2,10 @@
 
 Level streaming for Xash3D: play Half-Life 1 start to finish with zero loading screens.
 
+**Goal achieved (2026-06-11): full retail HL1 campaign played through seamlessly —
+no loading screens, no issues. Transitions are a single frozen frame (~21–25 ms)
+with continuous music and sound.** Run it: `tools/play-hl1.sh`.
+
 ## Layout
 - `xash3d-fwgs/` — clone of FWGS upstream engine (our base)
 - `hlsdk-portable/` — clone of the portable HL game DLL SDK
@@ -28,6 +32,11 @@ Level streaming for Xash3D: play Half-Life 1 start to finish with zero loading s
 - M5 complete: whole-campaign preload — `world_preload` + generated
   `streampreload.cfg` warm the residency cache behind the menu (96 maps, ~1.8 s,
   ~490 MB). No transition ever loads a world from disk again (docs/research/14).
+- Polish: resource-probe elimination (docs/research/15), map name overlay
+  (`scr_drawmapname`), stuffcmds and drop-loop engine bugfixes (upstream candidates).
+- **Validation complete: full HL1 campaign playthrough, seamless, zero issues
+  (2026-06-11).** Next: expansions (Opposing Force, Blue Shift), They Hunger,
+  Uplink; then Phase 2 local stitching evaluation (docs/SYNTHESIS.md).
 
 ## Build quickstart
 See docs/research/07-m0-baseline-measurements.md "Build setup". Run:
