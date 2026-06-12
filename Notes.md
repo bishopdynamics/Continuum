@@ -4,45 +4,50 @@ My running notes
 
 ## Small things
 
-[none currently — 2026-06-12 round 2 done: in-game Main Menu/Disconnect button
-(confirms in SP), A/B/X/Y/L1/R1 shown as glyphs in bindings, INPUT section
-restructure ("Input Bindings" on top, "Mouse Sensitivity"). Bonus fix: cancelling
-a rebind no longer wipes a fully-bound action.]
+[none currently — 2026-06-12 round 3 done: glyph transparency fixed (QM_DRAWTRANS),
+multiplayer Disconnect now confirms like Main Menu does.]
 
 ## Remaining pages to modernize
 
-- load game
-- save game
-- multiplayer -> character setup
+[all done 2026-06-12: Load Game + Save Game (one Continuum screen — save list,
+screenshot preview, New Save slot, overwrite/delete confirms) and Character Setup
+(name, model spinner, shirt/pants colors with live remap, 3D preview). Every page
+reachable from the Continuum UI is now Continuum-styled. Not carried over from the
+stock pages: spray-logo picker and the voice-chat settings (stock customize had
+them) — say the word if you want either added.]
 
 ## Big things
 
+- did we break savegame compatibility with any of our changes? 
 - settings toggle to disable modern UI
   - also need to add toggle to original UI so it can be enabled
   - probably requires restart, but would be nice if it does not
   - not concerned with adding advanced settings to original UI, unless it is trivial to do so
 - need to move functionality of hlstream_preprocess.py into the engine, to be self-contained and cross-platform
 - need to create build_all.sh, to build for distribution
-  - windows x86, linux x86/arm64, macos arm64
+  - windows x86, linux x86/arm64, macos universal
+  - steam deck flatpak? 
+    - x86 and arm64, because upcoming valve arm64 hardware
+    - need to document where user needs to place game folders
   - other platforms must built it themselves
 - the console takes a long time to open on higher resolutions, feels like the console-open animation is hardcoded as a certain pixels per second, instead of normalized to screen size.
+  - user also wants to control console font size in advanced settings with a slider
 
 ## Insane things
 
 Some of these ideas mess with core gameplay, and would definitely be default-off
 
 - improved flashlight. we have more powerful hardware now, can we do a better dynamic flashlight?
-- improved map lighting
-  - turn lights into dynamic lights
-  - ambient occlusion? (would prefer to avoid screen-space AO)
-  - keep the baked lighting, just turn down the "intensity", and let the dynamic lighting contribute better shadows mostly
-  - any of this already exist in xash3d?
 - gameplay tweaks
   - disable flashlight battery (infinite battery)
   - unlink flashlight battery from Oxygen level (cant hold breath as long with flashlight on currently)
   - add "always run" toggle
   - unify jump/swim-up and crouch-swimdown: currently separate keybindings for jump and swim-up, and users often dont use swim up/down as a result. enabling this setting causes the jump key to also do swim-up, and crouch to also do swim-down
-
+- improved map lighting (we probably wont do this one)
+  - turn lights into dynamic lights
+  - ambient occlusion? (would prefer to avoid screen-space AO)
+  - keep the baked lighting, just turn down the "intensity", and let the dynamic lighting contribute better shadows mostly
+  - any of this already exist in xash3d?
 
 ## Documentation
 
