@@ -29,6 +29,16 @@ edge-less maps from its 63 — those cold-load gracefully if ever visited.
 
 ## Notes
 
+- **Uplink gotcha (found by James at play time)**: the Uplink demo shipped as a
+  renamed `valve/` dir, and its 1999 `liblist.gam` is the generic retail one —
+  `game "Half-Life"`, **no `startmap`** — so New Game fell back to `c0a0` from
+  the base valve hierarchy and played like retail HL ("looks like Day One").
+  The pak itself was never the problem (`pak0.PAK` mounts fine, uppercase and
+  all). Fix: hand-author `install/uplink/liblist.gam` like the dayone one —
+  `game "Half-Life: Uplink"`, `startmap "hldemo1"`, `trainmap "t0a0"`.
+  Verified: `newgame` spawns hldemo1. gearbox/bshift/hunger liblists were
+  already correct (`of0a0`, `ba_tram1`, `thintro`).
+
 - These numbers are **first-visit** transitions on entity-heavy maps (OF
   especially) — the cost is game-DLL entity spawn + studio/sound precache, not
   world loading. HL1 revisits measure 21–25 ms; backtracking in the expansions
