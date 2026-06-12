@@ -2,10 +2,6 @@
 
 My running notes
 
-## small things
-
-[none currently — glyphs +25% everywhere and the RESTART chip text is centered
-in its outline (2026-06-12).]
 
 
 ## Remaining roadmap to v1 release
@@ -14,7 +10,6 @@ in its outline (2026-06-12).]
   - also need to add toggle to original UI so it can be enabled
   - probably requires restart, but would be nice if it does not
   - not concerned with adding advanced settings to original UI, unless it is trivial to do so
-- need to move functionality of hlstream_preprocess.py into the engine, to be self-contained and cross-platform
 - need to create build_all.sh, to build for distribution
   - windows x86, linux x86/arm64, macos universal
   - steam deck flatpak? 
@@ -39,7 +34,7 @@ Some of these ideas mess with core gameplay, and would definitely be default-off
   - unlink flashlight battery from Oxygen level (cant hold breath as long with flashlight on currently)
     - thus, flashlight becomes infinite but oxygen stays same as as before
   - add "always run" toggle
-  - unify jump/swim-up and crouch-swimdown: currently separate keybindings for jump and swim-up, and users often dont use swim up/down as a result. enabling this setting causes the jump key to also do swim-up, and crouch to also do swim-down
+  - unify jump/swim-up and crouch/swim-down: currently separate keybindings for jump and swim-up, and users often dont use swim up/down as a result. enabling this setting causes the jump key to also do swim-up, and crouch to also do swim-down
 - improved map lighting (we probably wont do this one)
   - turn lights into dynamic lights
   - ambient occlusion? (would prefer to avoid screen-space AO)
@@ -48,13 +43,16 @@ Some of these ideas mess with core gameplay, and would definitely be default-off
 
 ## Documentation
 
+This comes last, when we are almost ready to release, and after we decided what insane things to implement.
+
 - Readme, using similar style as our new unified menu
   - what this is not:
     - This is not a mod or a "remaster"
     - There is no modified or additional content or gameplay
   - This is:
-    - a new unified menu system, with a few more (existing) settings exposed; mostly just a new "theme"
+    - a new unified controller-first menu UI, with a few more (existing) settings exposed; mostly just a new "theme"
     - a level streaming system (no more loading screens)
+    - a few additional quality-of-life settings, all optional and off-by-default
   - compatibility:
     - supported expansions/mods list is same as upstream xash3d-fwgs
     - existing xash3d-fwgs savegames should work (not thoroughly tested)

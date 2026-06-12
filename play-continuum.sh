@@ -9,9 +9,10 @@
 #             bs, blueshift  -> bshift   (Blue Shift)
 #           any other installed mod dir works too: ./play-continuum.sh mymod
 #
-# Launches into the menu; the campaign preloads behind it (~2 s), then start a
-# New Game (or load a save) — every transition is a single frozen frame.
-# You can also switch games from inside the menu (Game page).
+# Launches into the menu; the engine scans the game's own maps (loose files
+# and pak archives alike), derives the campaign graph and preloads it behind
+# the menu — every transition is a single frozen frame. You can also switch
+# games from inside the menu (Game page).
 #
 # Extra args are passed to the engine, e.g.:
 #   ./play-continuum.sh -windowed            # windowed mode
@@ -41,34 +42,6 @@ if [ ! -f "$GAME/liblist.gam" ] && [ ! -f "$GAME/gameinfo.txt" ]; then
         [ -f "$d/liblist.gam" ] || [ -f "$d/gameinfo.txt" ] && echo "  $d" >&2
     done
     exit 1
-fi
-
-# make sure the campaign preload list exists (derived locally from your own
-# maps — never distributed). Streaming works without it; the preload just
-# warms every map up front so even first visits are instant.
-if [ ! -f "$GAME/streampreload.cfg" ]; then
-    graph="../cache/mapgraph-$GAME.json"
-    # earlier per-game launchers used short graph names; reuse those caches
-    case "$GAME" in
-        valve)   [ -f "$graph" ] || [ ! -f ../cache/mapgraph-hl1.json ] || graph=../cache/mapgraph-hl1.json ;;
-        gearbox) [ -f "$graph" ] || [ ! -f ../cache/mapgraph-of.json ]  || graph=../cache/mapgraph-of.json ;;
-        bshift)  [ -f "$graph" ] || [ ! -f ../cache/mapgraph-bs.json ]  || graph=../cache/mapgraph-bs.json ;;
-    esac
-
-    if [ -f "$graph" ]; then
-        echo "generating $GAME/streampreload.cfg from $graph..."
-        python3 ../tools/hlstream_preprocess.py "$graph" \
-            --preload-cfg "$GAME/streampreload.cfg" || exit 1
-    elif ls "$GAME"/maps/*.bsp >/dev/null 2>&1; then
-        echo "generating $GAME/streampreload.cfg from $GAME/maps..."
-        python3 ../tools/hlstream_preprocess.py "$GAME/maps" \
-            -o "../cache/mapgraph-$GAME.json" \
-            --preload-cfg "$GAME/streampreload.cfg" || exit 1
-    else
-        echo "note: no loose .bsp maps under install/$GAME/maps (pak archives?)"
-        echo "      skipping the preload list — transitions still stream, but each"
-        echo "      map pays a small one-time cost on first visit"
-    fi
 fi
 
 # no -console: the in-game toggle governs it (Configuration > Advanced >

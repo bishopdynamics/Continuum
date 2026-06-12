@@ -41,8 +41,10 @@ with continuous music and sound.** Run it: `./play-continuum.sh` (or
   already perceptually perfect (docs/SYNTHESIS.md).
 - Expansions pass complete (docs/research/16): Opposing Force, Blue Shift,
   They Hunger and Uplink all preload + stream the same way — as does any other
-  installed game or mod. One launcher: `./play-continuum.sh [game]` (project root)
-  derives a preload list from the game's own maps on first run.
+  installed game or mod. One launcher: `./play-continuum.sh [game]` (project root).
+  The engine itself scans the game's maps (loose files or pak archives), builds
+  the changelevel graph and preloads it behind the menu — no external tooling
+  (a hand-written `streampreload.cfg` in the game dir still overrides it).
   Playthrough validation in progress. Next: upstreaming the engine fixes.
 
 ## Build quickstart
