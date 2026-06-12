@@ -71,4 +71,6 @@ if [ ! -f "$GAME/streampreload.cfg" ]; then
     fi
 fi
 
-exec ./xash3d -console -log -game "$GAME" "$@"
+# no -console: the in-game toggle governs it (Configuration > Advanced >
+# Console); pass -console or -dev yourself for development sessions
+exec ./xash3d -log -game "$GAME" "$@"
