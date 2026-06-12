@@ -6,10 +6,6 @@ My running notes
 
 ## Remaining roadmap to v1 release
 
-- settings toggle to disable modern UI
-  - also need to add toggle to original UI so it can be enabled
-  - probably requires restart, but would be nice if it does not
-  - not concerned with adding advanced settings to original UI, unless it is trivial to do so
 - need to create build_all.sh, to build for distribution
   - windows x86, linux x86/arm64, macos universal
   - steam deck flatpak? 
@@ -19,9 +15,14 @@ My running notes
 
 ## Cheats menu
 
-- goes in the mid-game menu, if enabled
 - toggle in advanced settings to enable cheats. enables the button, and sets sv_cheats
-- cheats need to re-apply on level change, since it is now seamless to the user
+- goes in the mid-game menu, if enabled
+- toggle cheats need to re-apply on level change, since it is now seamless to the user
+  - otherwise god mode silently turns off without user knowing
+- cheats list:
+  - toggles for: god, notarget, noclip, thirdperson
+  - buttons for: impulse 101, impulse 195, impulse 105, give item_battery, give item_healthkit, give item_suit, give item_longjump
+- hopefully this set of cheats is generic enough that we don't need to do any per-game logic; user can always use the console
 
 
 ## Insane things
