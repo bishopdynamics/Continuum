@@ -35,16 +35,21 @@ My running notes
     Decide whether it's worth it; GoldSrc itself is all-or-nothing here.
   - NOTE: dist artifacts (linux-amd64 tarball + flatpak) need a rebuild to ship this menu change
 
-## Cheats menu
+## Cheats menu  — DONE (validated in-engine)
 
-- toggle in advanced settings to enable cheats. enables the button, and sets sv_cheats
-- goes in the mid-game menu, if enabled
-- toggle cheats need to re-apply on level change, since it is now seamless to the user
-  - otherwise god mode silently turns off without user knowing
-- cheats list:
-  - toggles for: god, notarget, noclip, thirdperson
-  - buttons for: impulse 101, impulse 195, impulse 105, give item_battery, give item_healthkit, give item_suit, give item_longjump
-- hopefully this set of cheats is generic enough that we don't need to do any per-game logic; user can always use the console
+- ~~toggle in advanced settings to enable cheats~~ "Enable Cheats" on Config > Advanced (sets sv_cheats)
+- ~~goes in the mid-game menu, if enabled~~ "Cheats" row in the in-game root menu, shown when sv_cheats + single-player
+- ~~re-apply on level change~~ DONE — the hard part:
+  - engine cvars cheat_god/notarget/noclip/thirdperson (sv_main.c) record desired state
+  - re-applied client-side in CL_CheckClientState (cl_main.c) on every single-player activation
+    (our seamless transition does a full loopback reconnect — "Server disconnected, reconnecting" —
+    NOT svc_changing, so it re-signons; the save/restore clears god each time, so we restore it)
+  - verified: god re-applies automatically after a c1a0->c1a1 transition ("godmode ON" logged post-spawn)
+- cheats screen (mainui submodule, Cheats.cpp): toggles (god/notarget/noclip/thirdperson, which set
+  the cheat_* cvar + issue the live command) + buttons (give all/impulse 101, impulse 105 "Silent to
+  Monsters", impulse 195 "Show AI Paths", give suit/battery/healthkit/longjump)
+- generic across games (no per-game logic), as hoped
+- NOTE: dist artifacts (linux-amd64 tarball + flatpak) need a rebuild to ship HD toggle + cheats
 
 
 ## Insane things
