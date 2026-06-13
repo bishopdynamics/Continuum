@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Half-Life: Continuum Edition
+Comment=Half-Life with zero loading screens
+Icon=org.continuum.HalfLife
+Exec=continuum
+Terminal=false
+Categories=Game;ActionGame;

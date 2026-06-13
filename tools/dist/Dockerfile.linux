@@ -1,0 +1,25 @@
+# Reproducible Linux build environment for xash3d-streaming (Continuum).
+# Built per-platform: docker build --platform linux/amd64|linux/arm64.
+# Mirrors upstream xash3d-fwgs CI: Debian toolchain + SDL2 built from a
+# pinned source release with every backend SDL enables by default.
+FROM debian:bookworm-slim
+
+ARG SDL_VERSION=2.32.10
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential cmake ninja-build python3 pkg-config wget ca-certificates \
+    libasound2-dev libpulse-dev libx11-dev libxext-dev libxrandr-dev \
+    libxcursor-dev libxfixes-dev libxi-dev libxss-dev libwayland-dev \
+    libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev \
+    libegl1-mesa-dev libdbus-1-dev libudev-dev libpipewire-0.3-dev \
+    libdecor-0-dev libsndio-dev libsamplerate0-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN wget -q "https://github.com/libsdl-org/SDL/releases/download/release-${SDL_VERSION}/SDL2-${SDL_VERSION}.tar.gz" -O- | tar -xzf - -C /tmp \
+    && cmake -S "/tmp/SDL2-${SDL_VERSION}" -B /tmp/sdl-build -GNinja \
+        -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/SDL2 \
+        -DCMAKE_C_FLAGS=-O3 -DSDL_STATIC=OFF -DSDL_RENDER=OFF \
+    && cmake --build /tmp/sdl-build --target install \
+    && rm -rf /tmp/SDL2-* /tmp/sdl-build
+
+WORKDIR /src

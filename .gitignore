@@ -14,3 +14,6 @@ hlsdk-branches/
 .deps/
 
 .claude/
+
+# build_all.sh output (staging + artifacts)
+/dist/
