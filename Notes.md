@@ -11,6 +11,26 @@ My running notes
 - on Steam Deck (flatpak), the built-in controller was NOT auto-detected for the glyph set — menu showed the wrong/default glyphs. Workaround exists (manual glyph-set setting in the menu), but we should dig into why SDL/joystick detection didn't pick the Deck's gamepad and map it to the right glyph family (ps/xbox/switch/etc.). Probably needs Deck VID/PID or SDL_GameControllerType handling.
 - in menus, the on-hover/on-highlighted animation is triggered repeatedly as mouse moves over the button. should only be triggered when entering the button area
 
+
+## Insane things
+
+Some of these ideas mess with core gameplay, and would definitely be default-off
+
+- gameplay tweaks
+  - unlink flashlight battery from Oxygen level (cant hold breath as long with flashlight on currently)
+    - thus, flashlight becomes infinite but oxygen stays same as as before
+  - add "always run" toggle (right now the game is always-run by default and cant turn it off)
+
+- graphics improvements
+  - ambient occlusion (prefer not screen-space, but will take what I can get)
+  - improved map lighting (we probably wont do this one)
+    - turn lights into dynamic lights
+    - keep the baked lighting, just turn down the "intensity", and let the dynamic lighting contribute better shadows mostly
+    - any of this already exist in xash3d?
+
+
+
+
 ## Remaining roadmap to v1 release
 
 - macos universal build still needs a Mac (tools/build_all.sh prints guidance)
@@ -21,20 +41,6 @@ My running notes
 - (deferred) arm64 flatpak — until Valve ships arm64 hardware
 
 
-## Insane things
-
-Some of these ideas mess with core gameplay, and would definitely be default-off
-
-- gameplay tweaks
-  - unlink flashlight battery from Oxygen level (cant hold breath as long with flashlight on currently)
-    - thus, flashlight becomes infinite but oxygen stays same as as before
-  - add "always run" toggle
-  - unify jump/swim-up and crouch/swim-down: currently separate keybindings for jump and swim-up, and users often dont use swim up/down as a result. enabling this setting causes the jump key to also do swim-up, and crouch to also do swim-down
-- improved map lighting (we probably wont do this one)
-  - turn lights into dynamic lights
-  - ambient occlusion? (would prefer to avoid screen-space AO)
-  - keep the baked lighting, just turn down the "intensity", and let the dynamic lighting contribute better shadows mostly
-  - any of this already exist in xash3d?
 
 ## Documentation
 
@@ -48,10 +54,14 @@ This comes last, when we are almost ready to release, and after we decided what 
     - a new unified controller-first menu UI, with a few more (existing) settings exposed; mostly just a new "theme"
     - a level streaming system (no more loading screens)
     - a new flashlight (optional, configurable)
+    - supplemental ambient occlusion (optional)
     - a few additional quality-of-life settings, all optional and off-by-default
   - compatibility:
     - supported expansions/mods list is same as upstream xash3d-fwgs
     - existing xash3d-fwgs savegames should work (not thoroughly tested)
+  - Readme.md is just primarily "getting started" and minimal explanation of what this project is. everything else belongs in separate pages that you link to from here. This keeps the core Readme clean and focused on introducing new users to the project, but they can find all the detailed documentation from there.
+  - we aren't here to document the whole engine ourselves
+  - of course, we _must_ document all the cvars that we added
 
 - Capture a 10fps video tour of new menu, convert to GIF so we can use it in the Readme.md
 - help me record a demofile starting at the end of the opening tram ride, thru to the blackout after the resonance cascade (that might actually be all of day one?). Then capture that to a 30fps video, for us to use as a gameplay video. I want a pipeline so we can re-capture the video from the demofile any time we want.
