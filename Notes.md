@@ -5,23 +5,19 @@ My running notes
 
 ## small things
 
-- win32-i386 build, playing via wine, has just enough of a stutter on level change to be annoying, definitely takes longer than on native linux
-
-## Insane things
-
-Some of these ideas mess with core gameplay, and would definitely be default-off
+- DONE (pending playtest): remove advanced setting "entity shadows" from the menu. Row removed from Config.cpp Advanced tab; r_shadows already defaults off so it stays off.
 
 - gameplay tweaks
-  - unlink flashlight battery from Oxygen level (cant hold breath as long with flashlight on currently)
-    - thus, flashlight becomes infinite but oxygen stays same as as before
-  - add "always run" toggle (right now the game is always-run by default and cant turn it off)
+  - flashlight battery vs Oxygen: in the code these were never linked — oxygen is air_finished/AIRTIME in WaterMove(), the flashlight is m_iFlashBattery; turning the light on does not touch breath. The "flashlight becomes infinite" goal is already covered by the existing Infinite Battery toggle (Gameplay tab, flashlight_infinite cvar, default off). OPEN: decide whether infinite should be the default vs opt-in.
+  - DONE (pending playtest): "always run" toggle (Gameplay tab). On = run by default, hold Shift to walk (stock). Off = walk by default, hold Shift to run. No new movement code — swaps cl_forwardspeed/back/side (400<->120) and cl_movespeedkey (0.3<->3.33, the speed key always multiplies so <1 walks / >1 runs). cl_movespeedkey made FCVAR_ARCHIVE in all 4 client builds so the inverted state persists.
 
-- graphics improvements
-  - ambient occlusion (prefer not screen-space, but will take what I can get)
-  - improved map lighting (we probably wont do this one)
-    - turn lights into dynamic lights
-    - keep the baked lighting, just turn down the "intensity", and let the dynamic lighting contribute better shadows mostly
-    - any of this already exist in xash3d?
+
+## Big things
+
+- improved map lighting
+  - turn lights into dynamic lights, specifically to get real-time shadows and lighting
+  - idea: keep the baked lighting, just turn down the "intensity", and let the dynamic lighting contribute better shadows mostly
+  - any of this already exist in xash3d?
 
 
 
@@ -32,14 +28,14 @@ Some of these ideas mess with core gameplay, and would definitely be default-off
 - win32+wine controller hotplug unreliable — needs a real-Windows test
 - rebuild + reship the dist artifacts (linux-amd64 tarball + flatpak) so they include all the menu changes (HD toggle, cheats, flashlight)
 - before any public release: tighten the flatpak grant (currently --filesystem=home + --device=all)
-- (deferred) split HD into per-category model toggles — needs custom partial mounting (fs_mount_hd is all-or-nothing); decide whether it's worth it
-- (deferred) arm64 flatpak — until Valve ships arm64 hardware
 
 
 
 ## Documentation
 
 This comes last, when we are almost ready to release, and after we decided what insane things to implement.
+
+our current ./docs/ folder is actually just research, and should be renamed and gitignored
 
 - Readme, using similar style as our new unified menu
   - what this is not:
