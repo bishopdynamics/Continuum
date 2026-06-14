@@ -6,9 +6,6 @@ My running notes
 ## small things
 
 - win32-i386 build, playing via wine, has just enough of a stutter on level change to be annoying, definitely takes longer than on native linux
-- on Steam Deck (flatpak), the built-in controller was NOT auto-detected for the glyph set — menu showed the wrong/default glyphs. Workaround exists (manual glyph-set setting in the menu), but we should dig into why SDL/joystick detection didn't pick the Deck's gamepad and map it to the right glyph family (ps/xbox/switch/etc.). Probably needs Deck VID/PID or SDL_GameControllerType handling.
-- in menus, the on-hover/on-highlighted animation is triggered repeatedly as mouse moves over the button. should only be triggered when entering the button area
-
 
 ## Insane things
 
