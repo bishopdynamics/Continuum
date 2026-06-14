@@ -5,60 +5,27 @@ My running notes
 
 ## small things
 
+- root menu and mid-game menu:
+  - need to shift all items up. When mid-game menu and cheats enabled, the quit button is almost off the screen (it is behind the input prompts panel)
 - win32-i386 build, playing via wine, has just enough of a stutter on level change to be annoying, definitely takes longer than on native linux
 - on Steam Deck (flatpak), the built-in controller was NOT auto-detected for the glyph set — menu showed the wrong/default glyphs. Workaround exists (manual glyph-set setting in the menu), but we should dig into why SDL/joystick detection didn't pick the Deck's gamepad and map it to the right glyph family (ps/xbox/switch/etc.). Probably needs Deck VID/PID or SDL_GameControllerType handling.
-- 
-
+- in menus, the on-hover/on-highlighted animation is triggered repeatedly as mouse moves over the button. should only be triggered when entering the button area
 
 ## Remaining roadmap to v1 release
 
-- ~~need to create build_all.sh, to build for distribution~~ DONE: tools/build_all.sh
-  - containerized (Docker) builds: linux-amd64, linux-arm64 (qemu binfmt), win32 (mingw, validated under wine incl. in-game)
-  - macos universal still needs a Mac (script prints guidance)
-  - user setup documented in tools/dist/README-DIST.md (ships inside each artifact)
-  - known caveat: controller hotplug under win32+wine unreliable; needs a real-Windows test
-- ~~steam deck flatpak~~ DONE (x86_64): tools/dist/build-flatpak.sh + ./install-deck.sh
-  - assembled from the linux-amd64 tree (no flatpak SDK needed); app id org.continuum.HalfLife
-  - uses engine RODIR (read-only /app overlay: game libs + fonts) + writable BASEDIR (app data dir)
-  - validated in a real sandbox: campaign preloads, c1a0 loads, writes land in data dir, /app read-only
-  - install: DECK_SSH=deck@host ./install-deck.sh [--run]; game data -> ~/.var/app/<id>/data/valve
-  - arm64 flatpak deferred until Valve ships arm64 hardware (would just need an arm64 base tree)
-  - battle-test grant is --filesystem=home + --device=all; tighten before any public release
-- ~~support the "HD" content (valve_hd, bshift_hd, gearbox_hd) if present~~ DONE (basic toggle)
-  - engine already had the plumbing: fs_mount_hd cvar mounts <gamedir>_hd, applied live via fs_rescan
-  - "HD Models" toggle added to the Continuum Config > Interface tab (mainui submodule, Config.cpp)
-    - shown ONLY when a <gamedir>_hd pack is detected (probes models/gman|barney|agrunt.mdl via the base path)
-    - onChanged runs fs_rescan so it mounts/unmounts without a restart; persists to vfs.cfg (writable basedir, not the read-only flatpak /app)
-    - validated in-engine: row appears, toggles, mounts valve_hd; works for any game's _hd
-  - STRETCH (deferred): split HD into per-category model toggles in a submenu — needs custom
-    partial mounting (the engine's fs_mount_hd is all-or-nothing), a real feature, not plumbing.
-    Decide whether it's worth it; GoldSrc itself is all-or-nothing here.
-  - NOTE: dist artifacts (linux-amd64 tarball + flatpak) need a rebuild to ship this menu change
-
-## Cheats menu  — DONE (validated in-engine)
-
-- ~~toggle in advanced settings to enable cheats~~ "Enable Cheats" on Config > Advanced (sets sv_cheats)
-- ~~goes in the mid-game menu, if enabled~~ "Cheats" row in the in-game root menu, shown when sv_cheats + single-player
-- ~~re-apply on level change~~ DONE — the hard part:
-  - engine cvars cheat_god/notarget/noclip/thirdperson (sv_main.c) record desired state
-  - re-applied client-side in CL_CheckClientState (cl_main.c) on every single-player activation
-    (our seamless transition does a full loopback reconnect — "Server disconnected, reconnecting" —
-    NOT svc_changing, so it re-signons; the save/restore clears god each time, so we restore it)
-  - verified: god re-applies automatically after a c1a0->c1a1 transition ("godmode ON" logged post-spawn)
-- cheats screen (mainui submodule, Cheats.cpp): toggles (god/notarget/noclip/thirdperson, which set
-  the cheat_* cvar + issue the live command) + buttons (give all/impulse 101, impulse 105 "Silent to
-  Monsters", impulse 195 "Show AI Paths", give suit/battery/healthkit/longjump)
-- generic across games (no per-game logic), as hoped
-- NOTE: dist artifacts (linux-amd64 tarball + flatpak) need a rebuild to ship HD toggle + cheats
+- macos universal build still needs a Mac (tools/build_all.sh prints guidance)
+- win32+wine controller hotplug unreliable — needs a real-Windows test
+- rebuild + reship the dist artifacts (linux-amd64 tarball + flatpak) so they include all the menu changes (HD toggle, cheats, flashlight)
+- before any public release: tighten the flatpak grant (currently --filesystem=home + --device=all)
+- (deferred) split HD into per-category model toggles — needs custom partial mounting (fs_mount_hd is all-or-nothing); decide whether it's worth it
+- (deferred) arm64 flatpak — until Valve ships arm64 hardware
 
 
 ## Insane things
 
 Some of these ideas mess with core gameplay, and would definitely be default-off
 
-- improved flashlight. we have more powerful hardware now, can we do a better dynamic flashlight?
 - gameplay tweaks
-  - disable flashlight battery (infinite flashlight)
   - unlink flashlight battery from Oxygen level (cant hold breath as long with flashlight on currently)
     - thus, flashlight becomes infinite but oxygen stays same as as before
   - add "always run" toggle
@@ -80,6 +47,7 @@ This comes last, when we are almost ready to release, and after we decided what 
   - This is:
     - a new unified controller-first menu UI, with a few more (existing) settings exposed; mostly just a new "theme"
     - a level streaming system (no more loading screens)
+    - a new flashlight (optional, configurable)
     - a few additional quality-of-life settings, all optional and off-by-default
   - compatibility:
     - supported expansions/mods list is same as upstream xash3d-fwgs
