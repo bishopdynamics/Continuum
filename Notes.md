@@ -57,6 +57,8 @@ This comes last, when we are almost ready to release, and after we decided what 
   - Readme.md is just primarily "getting started" and minimal explanation of what this project is. everything else belongs in separate pages that you link to from here. This keeps the core Readme clean and focused on introducing new users to the project, but they can find all the detailed documentation from there.
   - we aren't here to document the whole engine ourselves
   - of course, we _must_ document all the cvars that we added
+  - include, near the top our AI attribution line: Created with assistance from Anthropic Fable 5, Opus 4.8, and Zennthic Elefant second-brain memory system
+  - 
 
 - Capture a 10fps video tour of new menu, convert to GIF so we can use it in the Readme.md
 - help me record a demofile starting at the end of the opening tram ride, thru to the blackout after the resonance cascade (that might actually be all of day one?). Then capture that to a 30fps video, for us to use as a gameplay video. I want a pipeline so we can re-capture the video from the demofile any time we want.
