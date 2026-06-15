@@ -5,9 +5,9 @@ install/
 # derived locally from the user's assets — never ship (derived-work risk)
 cache/
 
-# external clones / worktrees (own git repos)
-xash3d-fwgs/
-hlsdk-portable/
+# xash3d-fwgs/ and hlsdk-portable/ are now git submodules (see .gitmodules)
+
+# hlsdk expansion build worktrees (recreated from the hlsdk-portable submodule)
 hlsdk-branches/
 
 # local build deps (SDL2 from source)
