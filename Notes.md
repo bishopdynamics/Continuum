@@ -4,6 +4,12 @@
 
 - in settings, some rows have an explainer card on the right, most dont. Can we add some more of those, particularly for the features we added? it doesn't have to be every single setting, but anything that benefits from a more detailed explanation
 
+## medium things
+
+- flashlight moire pattern on illuminated surfaces, gets worse when closer to the camera
+- entity shadows: if the "floor" that the shadow would draw on is more than 64 units away from the bounds of the entity (the entity's feet), skip that shadow. This is to address a spot in the opening tram ride, where a character (far away) is walking on a raised platform, but the shadow is landing on the floor below the platform.
+- I'm seeing an issue where a scientist walking around suddenly becomes darker (like he stepped out of a light), and then as they keep walking they become lit again. I tried turning off all our new features, and it looks like this is a pre-existing feature of xash3D. It's some kind of dynamic lighting on entities from map lights, but it seems to be sampling at a very low rate, or doesn't have fine-grained enough light levels to switch between, because they "pop" between different light levels as they walk around. My question: can we find this feature, and give it some more granularity?
+
 ## Remaining roadmap to v1 release
 
 - macos universal build still needs a Mac (tools/build_all.sh prints guidance)
