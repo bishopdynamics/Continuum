@@ -1,53 +1,71 @@
-# xash3d-streaming
+# Half-Life: Continuum Edition
 
-Level streaming for Xash3D: play Half-Life 1 start to finish with zero loading screens.
+A fork of the Xash3D-FWGS engine that plays Half-Life **start to finish with no
+loading screens**, behind a unified controller-first menu — plus a few optional
+visual and quality-of-life extras. Same game, same content, smoother ride.
 
-**Goal achieved (2026-06-11): full retail HL1 campaign played through seamlessly —
-no loading screens, no issues. Transitions are a single frozen frame (~21–25 ms)
-with continuous music and sound.** Run it: `./play-continuum.sh` (or
-`./play-continuum.sh <game>` for any installed expansion or mod).
+> Created with assistance from Anthropic Fable 5, Opus 4.8, and Zennthic
+> Elefant second-brain memory system.
 
-## Layout
-- `xash3d-fwgs/` — clone of FWGS upstream engine (our base)
-- `hlsdk-portable/` — clone of the portable HL game DLL SDK
-- `docs/SYNTHESIS.md` — research synthesis + recommended architecture (start here)
-- `docs/research/` — research phase findings (scope, engine internals, prior art, map data)
-- `gamedata/` — local-only copyrighted HL assets for analysis (never distribute/commit)
+![The Continuum menu](doc/media/menu-tour.gif)
 
-## Status
-- Research phase complete (2026-06-10): Phase 1 "resident campaign + atomic swap",
-  Phase 2 local stitching. See docs/SYNTHESIS.md.
-- M0 complete (2026-06-11): builds + instrumentation + baselines (docs/research/07).
-- M1 complete: preprocessing tool `tools/hlstream_preprocess.py`, all 5 campaigns
-  extracted + sanity-checked (docs/research/08, 09).
-- M2 complete: in-memory transition state, `sv_transition_memstate` (docs/research/10).
-- M3 complete: world residency cache, `mod_world_residency` — revisited maps restore
-  in ~0.5 ms instead of reloading (docs/research/11).
-- M4a complete: seamless transitions — no loading plaque (`cl_seamless_changelevel`),
-  unthrottled handshake, drop-loop bugfix. Revisit transition = **~20 ms (~1 frame)**,
-  frozen-frame cut, music continuous (docs/research/12).
-- M4b complete: sound continuity — sounds on crossing entities (NPC speech, weapons,
-  suit VOX) resume at their exact sample position after the swap
-  (`sv_transition_sounds`, docs/research/13). Engine work is committed on the
-  `streaming` branch of `xash3d-fwgs/`.
-- M5 complete: whole-campaign preload — `world_preload` + generated
-  `streampreload.cfg` warm the residency cache behind the menu (96 maps, ~1.8 s,
-  ~490 MB). No transition ever loads a world from disk again (docs/research/14).
-- Polish: resource-probe elimination (docs/research/15), map name overlay
-  (`scr_drawmapname`), stuffcmds and drop-loop engine bugfixes (upstream candidates).
-- **Validation complete: full HL1 campaign playthrough, seamless, zero issues
-  (2026-06-11).** Phase 2 stitching evaluated and shelved — every HL1 transition
-  area blocks line of sight into the next map by design, so the invisible swap is
-  already perceptually perfect (docs/SYNTHESIS.md).
-- Expansions pass complete (docs/research/16): Opposing Force, Blue Shift,
-  They Hunger and Uplink all preload + stream the same way — as does any other
-  installed game or mod. One launcher: `./play-continuum.sh [game]` (project root).
-  The engine itself scans the game's maps (loose files or pak archives), builds
-  the changelevel graph and preloads it behind the menu — no external tooling
-  (a hand-written `streampreload.cfg` in the game dir still overrides it).
-  Playthrough validation in progress. Next: upstreaming the engine fixes.
+## What this is — and isn't
 
-## Build quickstart
-See docs/research/07-m0-baseline-measurements.md "Build setup". Run:
-`cd install && ./xash3d -windowed -game dayone` (demo data) — retail HL: drop your
-Steam `valve/` folder into `install/` and run without `-game`.
+**It is not** a mod, a remaster, or a content pack. There is no new or modified
+content, story, or gameplay. You play the same Half-Life you already own.
+
+**It is** a fork of the Xash3D-FWGS engine that adds:
+
+- a new **unified, controller-first menu UI**, with a few existing settings
+  exposed that the stock menu hid — mostly a new "theme" over the same engine;
+- a **level streaming system** — play the whole campaign with no loading
+  screens ([details](doc/level-streaming.md));
+- an optional, configurable **projected flashlight**
+  ([details](doc/flashlight.md));
+- supplemental **ambient occlusion**, contact and world
+  ([details](doc/ambient-occlusion.md));
+- a few additional **quality-of-life settings**, all optional.
+
+## Getting started
+
+Continuum needs the original Half-Life game data — it doesn't ship any.
+
+1. Get a build (release artifacts: linux-amd64 tarball, Steam Deck flatpak,
+   Windows, macOS) **or** [build from source](doc/building.md).
+2. Drop your retail Steam `valve/` folder (or an expansion/mod folder) in next
+   to the engine.
+3. Launch — pick your game from the menu and play.
+
+Building it yourself instead? See **[doc/building.md](doc/building.md)** —
+in short, `git clone --recurse-submodules`, then `make play`.
+
+## Compatibility
+
+- **Games & mods:** the same expansions and mods supported by upstream
+  Xash3D-FWGS work here (Opposing Force, Blue Shift, They Hunger, Uplink, and
+  more) — each streams seamlessly with no per-game setup.
+- **Savegames:** existing Xash3D-FWGS savegames should load (not exhaustively
+  tested).
+
+## Documentation
+
+- [The menu](doc/menu.md) — the unified controller-first UI
+- [Level streaming](doc/level-streaming.md) — how the no-loading-screen
+  campaign works
+- [Flashlight](doc/flashlight.md) — the optional projected flashlight
+- [Ambient occlusion](doc/ambient-occlusion.md) — contact + world AO
+- [Console variable reference](doc/cvars.md) — every cvar and command Continuum
+  adds
+- [Building from source](doc/building.md)
+
+This project documents only what it *adds* to the engine — for the engine
+itself, see the upstream Xash3D-FWGS documentation.
+
+## Repositories
+
+Continuum is an umbrella project over three engine/SDK forks:
+
+- Umbrella: <https://github.com/bishopdynamics/Continuum>
+- Engine fork (Xash3D-FWGS): <https://github.com/bishopdynamics/xash3d-fwgs>
+- Menu fork (mainui_cpp): <https://github.com/bishopdynamics/mainui_cpp>
+- Game SDK fork (hlsdk-portable): <https://github.com/bishopdynamics/hlsdk-portable>
