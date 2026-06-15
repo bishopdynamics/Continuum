@@ -117,7 +117,11 @@ DONECFG_BAK=""
 if [ "$PRELOAD" = 1 ]; then
 	DONECFG="install/$GAME/streampreload_done.cfg"
 	[ -f "$DONECFG" ] && { DONECFG_BAK="$DONECFG.capbak"; cp "$DONECFG" "$DONECFG_BAK"; }
-	printf '// temporary — tools/capture-demo-video.sh, removed after.\nstartmovie "%s"\nplaydemo %s\n' \
+	# con_notifytime 0 suppresses the console notify overlay (the recent-console
+	# lines drawn in the top-left corner) so captures are clean. The engine runs
+	# with -nowriteconfig (see launch below), so this never persists to the
+	# user's config.cfg.
+	printf '// temporary — tools/capture-demo-video.sh, removed after.\ncon_notifytime 0\nstartmovie "%s"\nplaydemo %s\n' \
 		"$FIFO" "$DEMO" > "$DONECFG"
 fi
 
@@ -173,7 +177,11 @@ else
 	echo "PRELOAD=0 has no startmovie hook; cannot capture. Set PRELOAD=1." >&2
 	exit 1
 fi
-./play-continuum.sh "$GAME" -windowed -width "$WIDTH" -height "$HEIGHT" \
+# -nowriteconfig: this is a throwaway capture session, so don't let it persist
+# its transient cvars (con_notifytime, fps_max, gl_vsync, snd_mute_losefocus) into
+# the user's config.cfg on exit. The capture resolution still persists separately
+# via the sed edit to unified_video.cfg above.
+./play-continuum.sh "$GAME" -windowed -nowriteconfig -width "$WIDTH" -height "$HEIGHT" \
 	+fps_max "$FPS_CAP" +gl_vsync "$VSYNC" ${SNDARGS[@]+"${SNDARGS[@]}"} \
 	${START[@]+"${START[@]}"} >/dev/null 2>&1 &
 ENGINE_PID=$!
