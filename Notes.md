@@ -1,5 +1,9 @@
 # Notes
 
+## small things
+
+- in settings, some rows have an explainer card on the right, most dont. Can we add some more of those, particularly for the features we added? it doesn't have to be every single setting, but anything that benefits from a more detailed explanation
+
 ## Remaining roadmap to v1 release
 
 - macos universal build still needs a Mac (tools/build_all.sh prints guidance)
