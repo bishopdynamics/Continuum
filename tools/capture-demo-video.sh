@@ -1,16 +1,15 @@
 #!/bin/bash
 # Capture a recorded demo to an MP4 by playing it back on the streaming engine
-# and screen-grabbing the window with ffmpeg (x11grab). This is the
-# re-capturable pipeline: dem in -> video out, one command. Re-run it after
-# re-recording the demo or after changing graphics settings.
+# and dumping each rendered frame straight from the engine (no screen grab).
+# This is the re-capturable pipeline: dem in -> video out, one command.
 #
-# The grab is bracketed by two engine log markers so the video is exactly the
-# demo, with no menu flash or trailing footage:
-#   start: "Demo playback started"   end: "Demo playback ended"
-# (both are Con_Printfs added to the engine: CL_DemoStartPlayback / CL_DemoCompleted.)
+# How it works: the engine's `startmovie <fifo>` writes the raw RGBA backbuffer
+# of every rendered frame to a FIFO (glReadPixels — no compositor, no async
+# screen read, so no tearing). ffmpeg reads that FIFO as rawvideo, captures the
+# game audio from PulseAudio in parallel, and encodes to H.264 (NVENC). The demo
+# ending auto-stops the movie (engine closes the FIFO -> ffmpeg sees EOF).
 #
-# Encodes straight to H.264 with the GPU (NVENC) in real time — no lossless
-# intermediate, no slow CPU transcode. Set ENCODER=libx264 for a CPU fallback.
+# Frames are bottom-up (glReadPixels order); ffmpeg flips with -vf vflip.
 #
 # Output: dist/<demo>.mp4 (dist/ is gitignored — a release asset, NOT committed;
 # copyrighted gameplay). e.g. demo "cascade" -> dist/cascade.mp4.
@@ -22,26 +21,23 @@
 #          named to match (dist/<demo>.mp4)
 #
 # Env overrides:
-#   GAME=valve  WIDTH=1280  HEIGHT=720  FPS=60   (FPS should equal FPS_CAP)
+#   GAME=valve  WIDTH=1280  HEIGHT=720  FPS=60
 #             WIDTH/HEIGHT are written into unified_video.cfg and PERSIST — the
-#             game stays at the capture resolution afterwards.
-#   FPS_CAP=60   (caps the engine's render rate during the grab — uncapped fps
-#                 tears badly under x11grab)
-#   VSYNC=1      (force gl_vsync on during the grab — also kills tearing;
-#                 persists to config afterwards, which is fine)
-#   PRELOAD=1    (let the campaign streaming preload finish at the menu, then
-#                 load the demo's first map, then start playback — so the whole
-#                 run is warm and transitions are seamless. A cold +playdemo
-#                 renders the world wrong and skips the preload. PRELOAD=0
-#                 disables, reverting to a plain +playdemo.)
-#   SETTLE=0.6   (seconds to wait after playback starts before grabbing)
+#             game stays at the capture resolution afterwards. FPS must match the
+#             render rate (FPS_CAP) so the timeline is right.
+#   FPS_CAP=60   (caps the engine's render rate; FPS should equal it)
+#   VSYNC=1      (gl_vsync during capture; paces rendering to a steady 60)
+#   PRELOAD=1    (warm the whole campaign at the menu before playback, so the
+#                 first map is resident and transitions are seamless; PRELOAD=0
+#                 reverts to a plain +playdemo with a cold first map)
 #   ENCODER=h264_nvenc  CQ=19  NVENC_PRESET=p6   (GPU encode; CQ lower = better)
 #   ENCODER=libx264     CRF=18 PRESET=slow       (CPU fallback)
 #   AUDIO=1   AUDIO_DEV=<src>   ABITRATE=192k    (capture game audio; AUDIO=0
 #             off. default source = the default sink's .monitor via pactl)
 #   OUT=dist/<demo>.mp4   (override the output path)
 #
-# Requires: ffmpeg (x11grab + the chosen encoder), xwininfo, an X11 session.
+# Requires: ffmpeg (rawvideo + the chosen encoder), the movie-capable engine
+# (startmovie/endmovie), and an audio server reachable via pactl for sound.
 set -euo pipefail
 cd "$(dirname "$0")/.." || exit 1   # repo root
 
@@ -49,7 +45,7 @@ DEMO=${1:-cascade}
 GAME=${GAME:-valve}
 WIDTH=${WIDTH:-1280}
 HEIGHT=${HEIGHT:-720}
-FPS=${FPS:-60}    # match FPS_CAP 1:1 — resampling (e.g. 30 of 60) judders/tears
+FPS=${FPS:-60}
 FPS_CAP=${FPS_CAP:-60}
 VSYNC=${VSYNC:-1}
 ENCODER=${ENCODER:-h264_nvenc}   # GPU encode; set ENCODER=libx264 for CPU
@@ -58,15 +54,12 @@ NVENC_PRESET=${NVENC_PRESET:-p6} # p1 fastest .. p7 best
 CRF=${CRF:-18}                   # libx264 fallback quality
 PRESET=${PRESET:-slow}           # libx264 fallback preset
 PRELOAD=${PRELOAD:-1}
-SETTLE=${SETTLE:-0.6}
 AUDIO=${AUDIO:-1}                # capture game audio too (PulseAudio/PipeWire)
 AUDIO_DEV=${AUDIO_DEV:-}         # override the capture source (default: auto)
 ABITRATE=${ABITRATE:-192k}
 OUT=${OUT:-dist/${DEMO}.mp4}
-DISPLAY=${DISPLAY:-:0}
 
-# encoder options: NVENC encodes in real time, so we grab straight to the final
-# MP4 — no lossless intermediate, no slow CPU transcode.
+# video encoder options
 if [[ "$ENCODER" == *nvenc* ]]; then
 	VOPTS=(-c:v "$ENCODER" -preset "$NVENC_PRESET" -rc vbr -cq "$CQ" -b:v 0)
 else
@@ -74,8 +67,6 @@ else
 fi
 
 # audio: capture the monitor of the default output sink (= what the game plays).
-# x11grab is video-only, so without this the MP4 has no sound. AUDIO_IN/AUDIO_MAP
-# stay empty (video-only) if disabled or no device is found.
 AUDIO_IN=()
 AUDIO_MAP=()
 SNDARGS=()   # extra engine args needed to actually produce audio
@@ -88,10 +79,9 @@ if [ "$AUDIO" = 1 ]; then
 	fi
 	if [ -n "$MON" ]; then
 		AUDIO_IN=(-f pulse -thread_queue_size 1024 -i "$MON")
-		AUDIO_MAP=(-map 0:v -map 1:a -c:a aac -b:a "$ABITRATE")
+		AUDIO_MAP=(-map 0:v -map 1:a -c:a aac -b:a "$ABITRATE" -shortest)
 		# the engine mutes audio when the window loses focus (snd_mute_losefocus,
-		# default 1) — but an automated capture never holds focus, so the monitor
-		# would record silence. Disable it for the capture session.
+		# default 1); an automated capture never holds focus, so disable it.
 		SNDARGS=(+snd_mute_losefocus 0)
 	else
 		echo "warning: no audio source (need pactl or AUDIO_DEV=); capturing video only" >&2
@@ -99,18 +89,9 @@ if [ "$AUDIO" = 1 ]; then
 fi
 
 # --- preflight -------------------------------------------------------------
-for tool in ffmpeg xwininfo; do
-	command -v "$tool" >/dev/null || { echo "missing required tool: $tool" >&2; exit 1; }
-done
+command -v ffmpeg >/dev/null || { echo "missing required tool: ffmpeg" >&2; exit 1; }
 [ -x install/xash3d ] || { echo "engine not built — run tools/build-engine.sh first" >&2; exit 1; }
 [ -f "demos/$DEMO.dem" ] || { echo "no demo at demos/$DEMO.dem" >&2; exit 1; }
-
-# window title = the game's title (engine sets SDL caption to GI->title).
-# `|| true`: missing file / no match must not trip `set -e` (valve has no
-# gameinfo.txt — it uses liblist.gam).
-TITLE=$(grep -iE '^\s*title\b' "install/$GAME/gameinfo.txt" 2>/dev/null | head -1 | cut -d'"' -f2 || true)
-[ -n "$TITLE" ] || TITLE=$(grep -iE '^\s*game\b' "install/$GAME/liblist.gam" 2>/dev/null | head -1 | cut -d'"' -f2 || true)
-[ -n "$TITLE" ] || TITLE="Half-Life"
 
 LOG=install/engine.log
 mkdir -p "$(dirname "$OUT")"
@@ -118,21 +99,22 @@ mkdir -p "$(dirname "$OUT")"
 # stage the demo into the gamedir so playdemo finds it
 cp "demos/$DEMO.dem" "install/$GAME/$DEMO.dem"
 
-# PRELOAD flow: let the campaign streaming preload finish at the menu, THEN start
-# playback, so the first map is already resident (fixes the cold-start world) and
-# transitions are seamless. We can't use +playdemo for this: stuffcmds PREPENDS
-# commandline +cmds ahead of the queued world_preloads, so the demo would start
-# before any preload. Instead we drop a temp streampreload_done.cfg that the
-# engine execs once the world_preload queue has fully drained (a hook added to
-# Host_QueueStreamPreload). It runs `playdemo` — NOT `map`: a `map` server-load
-# after a full preload crashes in the game DLL (CWorld::Precache, "late precache"
-# state bug); demo playback is client-side and never touches that path.
+# FIFO the engine streams raw frames into and ffmpeg reads from
+FIFO=$(mktemp -u --suffix=.rawvideo)
+mkfifo "$FIFO"
+
+# PRELOAD: let the campaign streaming preload finish at the menu, THEN start
+# playback (first map resident, seamless transitions). A commandline +cmd is
+# prepended ahead of the queued world_preloads, so instead we drop a temp
+# streampreload_done.cfg the engine execs once the preload queue drains (a hook
+# in Host_QueueStreamPreload). It runs `startmovie <fifo>` then `playdemo`.
 DONECFG=""
 DONECFG_BAK=""
 if [ "$PRELOAD" = 1 ]; then
 	DONECFG="install/$GAME/streampreload_done.cfg"
 	[ -f "$DONECFG" ] && { DONECFG_BAK="$DONECFG.capbak"; cp "$DONECFG" "$DONECFG_BAK"; }
-	printf '// temporary — tools/capture-demo-video.sh, removed after.\nplaydemo %s\n' "$DEMO" > "$DONECFG"
+	printf '// temporary — tools/capture-demo-video.sh, removed after.\nstartmovie "%s"\nplaydemo %s\n' \
+		"$FIFO" "$DEMO" > "$DONECFG"
 fi
 
 ENGINE_PID=""
@@ -144,10 +126,11 @@ cleanup() {
 		if [ -n "$DONECFG_BAK" ]; then mv "$DONECFG_BAK" "$DONECFG"
 		elif [ -f "$DONECFG" ]; then rm "$DONECFG"; fi
 	fi
+	[ -p "$FIFO" ] && rm "$FIFO"
 }
 trap cleanup EXIT INT TERM
 
-# wait for a log marker to appear (after the log is freshly truncated on launch)
+# wait for a log marker (the log is freshly truncated on launch)
 wait_for_marker() {
 	local marker=$1 timeout=$2 waited=0
 	while ! grep -qF "$marker" "$LOG" 2>/dev/null; do
@@ -158,11 +141,8 @@ wait_for_marker() {
 }
 
 # force the capture resolution. The window is born from the width/height
-# RENDERINFO cvars, and unified_video.cfg re-applies them AFTER the -width/-height
-# cmdline (queued exec), so the cmdline alone is ignored. Set them in
-# unified_video.cfg directly — persists; James is OK leaving the game at the
-# capture resolution. (unified_video.cfg is the shared video config; fall back to
-# valve's copy for games that don't carry their own.)
+# RENDERINFO cvars; unified_video.cfg re-applies them after the -width/-height
+# cmdline, so set them there directly (persists; the game stays at this res).
 VIDCFG="install/$GAME/unified_video.cfg"
 [ -f "$VIDCFG" ] || VIDCFG="install/valve/unified_video.cfg"
 if [ -f "$VIDCFG" ]; then
@@ -175,71 +155,62 @@ if [ -f "$VIDCFG" ]; then
 		fi
 	done
 else
-	echo "warning: no unified_video.cfg; capture resolution may not match ${WIDTH}x${HEIGHT}" >&2
+	echo "warning: no unified_video.cfg; render size may not match ${WIDTH}x${HEIGHT}" >&2
 fi
 
-# --- launch playback -------------------------------------------------------
-# PRELOAD: boot clean to the menu (no +playdemo) so the campaign preload drains
-# first; streampreload_done.cfg then fires playdemo. Otherwise go straight to
-# +playdemo (world may render wrong + transitions rough — preload skipped).
+# --- launch ----------------------------------------------------------------
+# Boot clean to the menu; streampreload_done.cfg fires startmovie + playdemo once
+# the campaign is warm. (PRELOAD=0: plain +playdemo, no startmovie -> no capture,
+# so PRELOAD must be on for movie capture.)
 if [ -n "$DONECFG" ]; then
-	echo "launching $GAME, warming campaign at menu then playing demo $DEMO at ${WIDTH}x${HEIGHT}..."
+	echo "launching $GAME, warming campaign then capturing demo $DEMO at ${WIDTH}x${HEIGHT}..."
 	START=()
 else
-	echo "launching $GAME, playing $DEMO at ${WIDTH}x${HEIGHT}..."
-	START=(+playdemo "$DEMO")
+	echo "PRELOAD=0 has no startmovie hook; cannot capture. Set PRELOAD=1." >&2
+	exit 1
 fi
 ./play-continuum.sh "$GAME" -windowed -width "$WIDTH" -height "$HEIGHT" \
 	+fps_max "$FPS_CAP" +gl_vsync "$VSYNC" ${SNDARGS[@]+"${SNDARGS[@]}"} \
 	${START[@]+"${START[@]}"} >/dev/null 2>&1 &
 ENGINE_PID=$!
 
-# locate the window (it maps around engine init) and read its on-screen rect
-echo "waiting for window \"$TITLE\"..."
-geom=""
-for _ in $(seq 1 120); do
-	if geom=$(xwininfo -display "$DISPLAY" -name "$TITLE" 2>/dev/null); then break; fi
-	sleep 0.25
-	kill -0 "$ENGINE_PID" 2>/dev/null || { echo "engine exited before window appeared" >&2; exit 1; }
-done
-[ -n "$geom" ] || { echo "window \"$TITLE\" never appeared" >&2; exit 1; }
-
-X=$(awk '/Absolute upper-left X/{print $NF}' <<<"$geom")
-Y=$(awk '/Absolute upper-left Y/{print $NF}' <<<"$geom")
-W=$(awk '/^  Width:/{print $NF}'  <<<"$geom")
-H=$(awk '/^  Height:/{print $NF}' <<<"$geom")
-echo "window at +${X},${Y} ${W}x${H}"
-
-# raise it so nothing overlaps the grab region (best-effort)
-command -v wmctrl >/dev/null && wmctrl -a "$TITLE" 2>/dev/null || true
-
-# wait until the demo actually starts rendering, then grab until it completes
-echo "waiting for demo playback to start..."
-wait_for_marker "Demo playback started" 60 || { echo "demo never started" >&2; exit 1; }
-sleep "$SETTLE"   # let playback's first frame settle on the resident world
-
-# grab straight to the final MP4 (NVENC keeps up in real time). Video from
-# x11grab (input 0) + game audio from the sink monitor (input 1, if enabled).
-# -thread_queue_size: keep each input buffered; -draw_mouse 0: no cursor.
-echo "recording -> $OUT ($ENCODER${MON:+ + audio})..."
-ffmpeg -hide_banner -loglevel warning -y \
-	-f x11grab -draw_mouse 0 -thread_queue_size 1024 \
-	-framerate "$FPS" -video_size "${W}x${H}" -i "${DISPLAY}+${X},${Y}" \
+# Start the encoder. It opens the FIFO (input 0) and blocks until the engine's
+# startmovie connects as writer; the pulse input (1) opens right after, so audio
+# and video start together. Frames are bottom-up -> -vf vflip. -video_size must
+# equal the render size (we forced it above); the engine logs the actual size.
+FFLOG="dist/ffmpeg-${DEMO}.log"
+echo "recording -> $OUT ($ENCODER${MON:+ + audio}); ffmpeg log -> $FFLOG"
+ffmpeg -hide_banner -loglevel verbose -y \
+	-f rawvideo -pixel_format rgba -video_size "${WIDTH}x${HEIGHT}" -framerate "$FPS" \
+	-thread_queue_size 1024 -i "$FIFO" \
 	${AUDIO_IN[@]+"${AUDIO_IN[@]}"} \
-	${AUDIO_MAP[@]+"${AUDIO_MAP[@]}"} "${VOPTS[@]}" -pix_fmt yuv420p -movflags +faststart "$OUT" &
+	-vf vflip ${AUDIO_MAP[@]+"${AUDIO_MAP[@]}"} "${VOPTS[@]}" -pix_fmt yuv420p \
+	-movflags +faststart "$OUT" 2>"$FFLOG" &
 FFMPEG_PID=$!
 
-# stop the moment the demo finishes (engine prints "Demo playback ended")
-wait_for_marker "Demo playback ended" 1800 || echo "warning: end marker not seen; stopping anyway" >&2
+# wait for playback to begin (covers preload + startmovie), then for it to end.
+wait_for_marker "Demo playback started" 120 || { echo "demo never started" >&2; exit 1; }
+echo "capturing..."
+
+# wait for the demo to end — but also bail (and surface the log) if ffmpeg dies
+# mid-capture, instead of hanging until the demo finishes or the window closes.
+while ! grep -qF "Demo playback ended" "$LOG" 2>/dev/null; do
+	kill -0 "$FFMPEG_PID" 2>/dev/null || { echo "ffmpeg exited during capture — see $FFLOG:" >&2; tail -8 "$FFLOG" >&2; break; }
+	kill -0 "$ENGINE_PID" 2>/dev/null || { echo "engine exited during capture" >&2; break; }
+	sleep 0.25
+done
+
+# the engine closed the FIFO (CL_StopMovie on demo end) -> ffmpeg hits EOF and
+# finalizes (-shortest). Give it a few seconds; nudge it if it lingers.
+for _ in $(seq 1 24); do kill -0 "$FFMPEG_PID" 2>/dev/null || break; sleep 0.25; done
 kill -INT "$FFMPEG_PID" 2>/dev/null || true
 wait "$FFMPEG_PID" 2>/dev/null || true
 FFMPEG_PID=""
 
-# quit the engine (back at the menu after playback)
 kill "$ENGINE_PID" 2>/dev/null || true
 wait "$ENGINE_PID" 2>/dev/null || true
 ENGINE_PID=""
 
-cleanup              # restore/remove the temp streampreload_done.cfg now
-trap - EXIT INT TERM # already cleaned up — don't run it again on exit
+cleanup              # restore the temp cfg + remove the FIFO now
+trap - EXIT INT TERM
 echo "done: $OUT ($(du -h "$OUT" | cut -f1))"
