@@ -4,6 +4,11 @@ Recorded playthroughs on the xash3d-streaming engine, kept for re-rendering into
 gameplay videos (the demo stores game state, so playback re-renders live with
 whatever engine/settings are current).
 
+Render any of them to an MP4 with `tools/capture-demo-video.sh <demo>` (e.g.
+`tools/capture-demo-video.sh tram_ride`); it warms the campaign preload, plays
+the demo, and dumps frames straight from the engine to ffmpeg (tear-free, with
+audio). Output lands in `dist/<demo>.mp4` (a release asset, not committed).
+
 ## cascade.dem
 
 A continuous run from the **Black Mesa Inbound approach** (the final tram leg
@@ -34,3 +39,33 @@ cp demos/cascade.dem install/valve/cascade.dem
   to `record`, so the first few seconds of the tram (`c0a0`–`c0a0c`) are not in
   this take.
 - Ends when the player is killed by a laser shortly after the cascade.
+
+## tram_ride.dem
+
+The **full opening tram ride** — from the very start of Black Mesa Inbound
+(`c0a0`) through the tram sequence, across its level transitions. This is the
+opening that `cascade.dem` joins partway through, so it's the better showcase of
+the seamless streaming during the ride itself.
+
+Recorded 2026-06-14 (on the offline AO-bake engine — no per-map hitches).
+
+### Play it
+
+```sh
+cp demos/tram_ride.dem install/valve/tram_ride.dem
+./play-continuum.sh valve +playdemo tram_ride
+```
+
+## zombie_shadows.dem
+
+A short clip in **Blast Pit** (`c1a4d`) showing off the dynamic entity shadows —
+moving characters casting soft AO-style projected shadows on the baked world.
+
+Recorded 2026-06-14.
+
+### Play it
+
+```sh
+cp demos/zombie_shadows.dem install/valve/zombie_shadows.dem
+./play-continuum.sh valve +playdemo zombie_shadows
+```
