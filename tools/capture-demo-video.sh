@@ -23,6 +23,8 @@
 #
 # Env overrides:
 #   GAME=valve  WIDTH=1280  HEIGHT=720  FPS=60   (FPS should equal FPS_CAP)
+#             WIDTH/HEIGHT are written into unified_video.cfg and PERSIST — the
+#             game stays at the capture resolution afterwards.
 #   FPS_CAP=60   (caps the engine's render rate during the grab — uncapped fps
 #                 tears badly under x11grab)
 #   VSYNC=1      (force gl_vsync on during the grab — also kills tearing;
@@ -35,6 +37,8 @@
 #   SETTLE=0.6   (seconds to wait after playback starts before grabbing)
 #   ENCODER=h264_nvenc  CQ=19  NVENC_PRESET=p6   (GPU encode; CQ lower = better)
 #   ENCODER=libx264     CRF=18 PRESET=slow       (CPU fallback)
+#   AUDIO=1   AUDIO_DEV=<src>   ABITRATE=192k    (capture game audio; AUDIO=0
+#             off. default source = the default sink's .monitor via pactl)
 #   OUT=dist/<demo>.mp4   (override the output path)
 #
 # Requires: ffmpeg (x11grab + the chosen encoder), xwininfo, an X11 session.
@@ -55,6 +59,9 @@ CRF=${CRF:-18}                   # libx264 fallback quality
 PRESET=${PRESET:-slow}           # libx264 fallback preset
 PRELOAD=${PRELOAD:-1}
 SETTLE=${SETTLE:-0.6}
+AUDIO=${AUDIO:-1}                # capture game audio too (PulseAudio/PipeWire)
+AUDIO_DEV=${AUDIO_DEV:-}         # override the capture source (default: auto)
+ABITRATE=${ABITRATE:-192k}
 OUT=${OUT:-dist/${DEMO}.mp4}
 DISPLAY=${DISPLAY:-:0}
 
@@ -64,6 +71,31 @@ if [[ "$ENCODER" == *nvenc* ]]; then
 	VOPTS=(-c:v "$ENCODER" -preset "$NVENC_PRESET" -rc vbr -cq "$CQ" -b:v 0)
 else
 	VOPTS=(-c:v "$ENCODER" -crf "$CRF" -preset "$PRESET")
+fi
+
+# audio: capture the monitor of the default output sink (= what the game plays).
+# x11grab is video-only, so without this the MP4 has no sound. AUDIO_IN/AUDIO_MAP
+# stay empty (video-only) if disabled or no device is found.
+AUDIO_IN=()
+AUDIO_MAP=()
+SNDARGS=()   # extra engine args needed to actually produce audio
+MON=""
+if [ "$AUDIO" = 1 ]; then
+	MON="$AUDIO_DEV"
+	if [ -z "$MON" ] && command -v pactl >/dev/null; then
+		sink=$(pactl get-default-sink 2>/dev/null || true)
+		[ -n "$sink" ] && MON="${sink}.monitor"
+	fi
+	if [ -n "$MON" ]; then
+		AUDIO_IN=(-f pulse -thread_queue_size 1024 -i "$MON")
+		AUDIO_MAP=(-map 0:v -map 1:a -c:a aac -b:a "$ABITRATE")
+		# the engine mutes audio when the window loses focus (snd_mute_losefocus,
+		# default 1) — but an automated capture never holds focus, so the monitor
+		# would record silence. Disable it for the capture session.
+		SNDARGS=(+snd_mute_losefocus 0)
+	else
+		echo "warning: no audio source (need pactl or AUDIO_DEV=); capturing video only" >&2
+	fi
 fi
 
 # --- preflight -------------------------------------------------------------
@@ -125,6 +157,27 @@ wait_for_marker() {
 	done
 }
 
+# force the capture resolution. The window is born from the width/height
+# RENDERINFO cvars, and unified_video.cfg re-applies them AFTER the -width/-height
+# cmdline (queued exec), so the cmdline alone is ignored. Set them in
+# unified_video.cfg directly — persists; James is OK leaving the game at the
+# capture resolution. (unified_video.cfg is the shared video config; fall back to
+# valve's copy for games that don't carry their own.)
+VIDCFG="install/$GAME/unified_video.cfg"
+[ -f "$VIDCFG" ] || VIDCFG="install/valve/unified_video.cfg"
+if [ -f "$VIDCFG" ]; then
+	for kv in "width=$WIDTH" "height=$HEIGHT"; do
+		c=${kv%=*}; v=${kv#*=}
+		if grep -qE "^$c \"" "$VIDCFG"; then
+			sed -i "s/^$c \"[^\"]*\"/$c \"$v\"/" "$VIDCFG"
+		else
+			printf '%s "%s"\n' "$c" "$v" >> "$VIDCFG"
+		fi
+	done
+else
+	echo "warning: no unified_video.cfg; capture resolution may not match ${WIDTH}x${HEIGHT}" >&2
+fi
+
 # --- launch playback -------------------------------------------------------
 # PRELOAD: boot clean to the menu (no +playdemo) so the campaign preload drains
 # first; streampreload_done.cfg then fires playdemo. Otherwise go straight to
@@ -137,7 +190,8 @@ else
 	START=(+playdemo "$DEMO")
 fi
 ./play-continuum.sh "$GAME" -windowed -width "$WIDTH" -height "$HEIGHT" \
-	+fps_max "$FPS_CAP" +gl_vsync "$VSYNC" ${START[@]+"${START[@]}"} >/dev/null 2>&1 &
+	+fps_max "$FPS_CAP" +gl_vsync "$VSYNC" ${SNDARGS[@]+"${SNDARGS[@]}"} \
+	${START[@]+"${START[@]}"} >/dev/null 2>&1 &
 ENGINE_PID=$!
 
 # locate the window (it maps around engine init) and read its on-screen rect
@@ -164,13 +218,15 @@ echo "waiting for demo playback to start..."
 wait_for_marker "Demo playback started" 60 || { echo "demo never started" >&2; exit 1; }
 sleep "$SETTLE"   # let playback's first frame settle on the resident world
 
-# grab straight to the final MP4 (NVENC keeps up in real time).
-# -thread_queue_size: keep the x11grab input buffered; -draw_mouse 0: no cursor.
-echo "recording -> $OUT ($ENCODER)..."
+# grab straight to the final MP4 (NVENC keeps up in real time). Video from
+# x11grab (input 0) + game audio from the sink monitor (input 1, if enabled).
+# -thread_queue_size: keep each input buffered; -draw_mouse 0: no cursor.
+echo "recording -> $OUT ($ENCODER${MON:+ + audio})..."
 ffmpeg -hide_banner -loglevel warning -y \
 	-f x11grab -draw_mouse 0 -thread_queue_size 1024 \
 	-framerate "$FPS" -video_size "${W}x${H}" -i "${DISPLAY}+${X},${Y}" \
-	"${VOPTS[@]}" -pix_fmt yuv420p -movflags +faststart "$OUT" &
+	${AUDIO_IN[@]+"${AUDIO_IN[@]}"} \
+	${AUDIO_MAP[@]+"${AUDIO_MAP[@]}"} "${VOPTS[@]}" -pix_fmt yuv420p -movflags +faststart "$OUT" &
 FFMPEG_PID=$!
 
 # stop the moment the demo finishes (engine prints "Demo playback ended")
@@ -184,5 +240,6 @@ kill "$ENGINE_PID" 2>/dev/null || true
 wait "$ENGINE_PID" 2>/dev/null || true
 ENGINE_PID=""
 
-trap - EXIT INT TERM
+cleanup              # restore/remove the temp streampreload_done.cfg now
+trap - EXIT INT TERM # already cleaned up — don't run it again on exit
 echo "done: $OUT ($(du -h "$OUT" | cut -f1))"
