@@ -79,7 +79,11 @@ if [ "$AUDIO" = 1 ]; then
 	fi
 	if [ -n "$MON" ]; then
 		AUDIO_IN=(-f pulse -thread_queue_size 1024 -i "$MON")
-		AUDIO_MAP=(-map 0:v -map 1:a -c:a aac -b:a "$ABITRATE" -shortest)
+		# NO -shortest: if the pulse monitor EOFs early (it intermittently gives
+		# only a fraction of a second), -shortest would truncate the whole video
+		# to that. Without it, video encodes to the end; ffmpeg exits when both
+		# the FIFO (demo end) and audio inputs are done, else the script SIGINTs.
+		AUDIO_MAP=(-map 0:v -map 1:a -c:a aac -b:a "$ABITRATE")
 		# the engine mutes audio when the window loses focus (snd_mute_losefocus,
 		# default 1); an automated capture never holds focus, so disable it.
 		SNDARGS=(+snd_mute_losefocus 0)
@@ -200,9 +204,10 @@ while ! grep -qF "Demo playback ended" "$LOG" 2>/dev/null; do
 	sleep 0.25
 done
 
-# the engine closed the FIFO (CL_StopMovie on demo end) -> ffmpeg hits EOF and
-# finalizes (-shortest). Give it a few seconds; nudge it if it lingers.
-for _ in $(seq 1 24); do kill -0 "$FFMPEG_PID" 2>/dev/null || break; sleep 0.25; done
+# the engine closed the FIFO (CL_StopMovie on demo end) -> video hits EOF. ffmpeg
+# self-exits once audio is also done; if audio is still live it won't, so give it
+# a short grace to drain the buffered frames, then SIGINT (finalizes cleanly).
+for _ in $(seq 1 8); do kill -0 "$FFMPEG_PID" 2>/dev/null || break; sleep 0.25; done
 kill -INT "$FFMPEG_PID" 2>/dev/null || true
 wait "$FFMPEG_PID" 2>/dev/null || true
 FFMPEG_PID=""
