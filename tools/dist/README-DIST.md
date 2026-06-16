@@ -36,9 +36,8 @@ this off any time: Configuration > Advanced > Level Streaming.
   known to be unreliable (use the native Linux build there). Reports from
   real Windows hardware are welcome.
 - The per-game menu artwork is generated from your own game files and is
-  therefore not shipped. It is optional eye candy; if you want it, run
-  `tools/compose_backgrounds.py <this folder> /tmp/bg --engine-assets`
-  from the source tree (needs Python 3 + Pillow).
+  therefore not shipped. The engine composes it automatically on first launch
+  into `continuum/gfx/shell/continuum/games/` - no tool to run.
 - Licenses: engine GPLv3 (source: see project page); controller glyphs by
   Xelu (CC0); Michroma & Fira Sans fonts under the SIL Open Font License
-  (see `valve/gfx/fonts/`).
+  (see `continuum/gfx/fonts/`).

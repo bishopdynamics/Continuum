@@ -51,7 +51,7 @@ def chip_current(outdir, ttf):
 def main():
     install = sys.argv[1]
     ttf = sys.argv[2] if len(sys.argv) > 2 else "docs/mockups/assets/fonts/Michroma.ttf"
-    outdir = os.path.join(install, "valve", "gfx", "shell", "continuum")
+    outdir = os.path.join(install, "continuum", "gfx", "shell", "continuum")
     os.makedirs(outdir, exist_ok=True)
     lambda_mark(outdir)
     pill(outdir)

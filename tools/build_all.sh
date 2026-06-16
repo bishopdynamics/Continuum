@@ -24,21 +24,26 @@ TARGETS=("$@")
 stage_assets()
 {
     local out=$1
-    local v=$out/valve
+    local c=$out/continuum
 
-    mkdir -p "$v/gfx/shell/continuum" "$v/gfx/fonts"
-    cp -a install/valve/gfx/shell/continuum/pill.png \
-          install/valve/gfx/shell/continuum/dot.png \
-          install/valve/gfx/shell/continuum/chip_current.png \
-          install/valve/gfx/shell/continuum/lambda.png \
-          install/valve/gfx/shell/continuum/glyphs \
-          "$v/gfx/shell/continuum/"
-    cp -a install/valve/gfx/fonts/Michroma.ttf \
-          install/valve/gfx/fonts/OFL-Michroma.txt \
-          install/valve/gfx/fonts/console.ttf \
-          install/valve/gfx/fonts/OFL-FiraSans.txt \
-          install/valve/gfx/fonts/console-font-license.txt \
-          "$v/gfx/fonts/"
+    # Continuum's own always-mounted content dir (the engine adds it to every game's
+    # search path). NEVER game-derived content: the per-game menu backgrounds in
+    # gfx/shell/continuum/games are composed at runtime from the user's own files and
+    # stay out.
+    mkdir -p "$c/gfx/shell/continuum" "$c/gfx/fonts"
+    cp -a install/continuum/gfx/shell/continuum/pill.png \
+          install/continuum/gfx/shell/continuum/dot.png \
+          install/continuum/gfx/shell/continuum/chip_current.png \
+          install/continuum/gfx/shell/continuum/lambda.png \
+          install/continuum/gfx/shell/continuum/default-bg.png \
+          install/continuum/gfx/shell/continuum/glyphs \
+          "$c/gfx/shell/continuum/"
+    cp -a install/continuum/gfx/fonts/Michroma.ttf \
+          install/continuum/gfx/fonts/OFL-Michroma.txt \
+          install/continuum/gfx/fonts/console.ttf \
+          install/continuum/gfx/fonts/OFL-FiraSans.txt \
+          install/continuum/gfx/fonts/console-font-license.txt \
+          "$c/gfx/fonts/"
     cp tools/dist/README-DIST.md "$out/README.md"
 }
 

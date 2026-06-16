@@ -58,12 +58,14 @@ cp "$SRC/xash3d" "$APP/bin/"
 cp "$SRC"/*.so "$SRC"/*.so.* "$APP/lib/"
 install -m755 "$FP/continuum.sh" "$APP/bin/continuum"
 
-# read-only Continuum overlay (game .so libs + fonts/glyphs, NO game content)
+# read-only Continuum overlay: valve game .so libs, plus the always-mounted
+# continuum/ content dir (fonts/glyphs/brand mark). NO game content.
 cp -r "$SRC/valve" "$APP/share/continuum/"
+cp -r "$SRC/continuum" "$APP/share/continuum/"
 
 # desktop entry + icon (lambda mark, our own asset)
 cp "$FP/$APPID.desktop" "$APP/share/applications/"
-convert "$ROOT/install/valve/gfx/shell/continuum/lambda.png" \
+convert "$ROOT/install/continuum/gfx/shell/continuum/lambda.png" \
 	-resize 256x256 -background none -gravity center -extent 256x256 \
 	"$APP/share/icons/hicolor/256x256/apps/$APPID.png"
 

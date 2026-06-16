@@ -73,7 +73,7 @@ Public domain under Creative Commons 0 (CC0), per the pack's Readme.
 
 def main():
     pack, install = sys.argv[1], sys.argv[2]
-    outroot = os.path.join(install, "valve", "gfx", "shell", "continuum", "glyphs")
+    outroot = os.path.join(install, "continuum", "gfx", "shell", "continuum", "glyphs")
     missing = 0
     for style, glyphs in STYLES.items():
         outdir = os.path.join(outroot, style)
