@@ -65,7 +65,7 @@ cp -r "$SRC/continuum" "$APP/share/continuum/"
 
 # desktop entry + icon (lambda mark, our own asset)
 cp "$FP/$APPID.desktop" "$APP/share/applications/"
-convert "$ROOT/install/continuum/gfx/shell/continuum/lambda.png" \
+convert "$ROOT/redist/continuum/gfx/shell/continuum/lambda.png" \
 	-resize 256x256 -background none -gravity center -extent 256x256 \
 	"$APP/share/icons/hicolor/256x256/apps/$APPID.png"
 

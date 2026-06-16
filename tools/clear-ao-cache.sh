@@ -3,16 +3,16 @@
 # Handy for testing the first-launch bake / progress bar repeatedly.
 #
 # Usage:
-#   tools/clear-ao-cache.sh            # clear caches under install/*/
+#   tools/clear-ao-cache.sh            # clear caches under dist-test/*/
 #   tools/clear-ao-cache.sh <dir>...   # clear caches under the given game dir(s)
 cd "$(dirname "$0")/.." || exit 1   # repo root
 
 shopt -s nullglob
 
-# default search roots: every game dir in install/
+# default search roots: every game dir in dist-test/
 roots=( "$@" )
 if [ ${#roots[@]} -eq 0 ]; then
-	roots=( install/* )
+	roots=( dist-test/* )
 fi
 
 total=0

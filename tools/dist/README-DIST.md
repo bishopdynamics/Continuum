@@ -5,10 +5,10 @@ A modified Xash3D FWGS engine that plays Half-Life 1 and its expansions with
 every level transition is a single frozen frame — plus a new gamepad-first
 unified menu.
 
-**What this is NOT:** a mod or a "remaster". There is no modified or
-additional content and no gameplay changes. It is a new menu system (with a
-few more of the engine's existing settings exposed) and a level streaming
-system. You need to own the games: this package contains **no game content**.
+**What this is NOT:** a mod or a "remaster". There is no modified or additional
+content and no gameplay changes. It is a new menu system (with a few more of the
+engine's existing settings exposed) and a level-streaming system. You need to own
+the games: this package contains **no game content**.
 
 ## Setup
 
@@ -17,7 +17,8 @@ system. You need to own the games: this package contains **no game content**.
    merging it with the `valve` folder that is already here. Nothing gets
    overwritten — the files shipped here live on paths the game doesn't use.
 2. Expansions work the same way: copy `gearbox` (Opposing Force), `bshift`
-   (Blue Shift), or any other game/mod folder next to `valve`.
+   (Blue Shift), or `hunger` (They Hunger) next to `valve`. Their game code is
+   already bundled — you just add the assets.
 3. Run the game:
    - **Windows**: double-click `xash3d.exe`
    - **Linux**: run `./xash3d.sh`

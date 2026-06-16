@@ -1,6 +1,7 @@
 # Game libraries to build (one folder per line). build-game-libs.py looks each
 # folder up in game-libs-catalog.json to find its hlsdk-portable branch, then
-# builds + installs into install/<folder>/{dlls,cl_dlls}.
+# builds + installs into <OUT>/<folder>/{dlls,cl_dlls} (the package staging tree
+# /out in the dist container, or ./dist-test/ for a local host build).
 #
 #   - blank lines and # comments are ignored
 #   - a folder must exist in the catalog (run: build-game-libs.py catalog)

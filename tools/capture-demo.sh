@@ -73,11 +73,11 @@ MIN_MB=${MIN_MB:-5}              # a valid capture is at least this many MB (rea
 RETRIES=${RETRIES:-2}            # extra attempts after the first (up to 1+RETRIES)
 FORCE=${FORCE:-0}
 OUTDIR=${OUTDIR:-dist/media}
-LOG=install/engine.log
+LOG=dist-test/engine.log
 
 # --- preflight -------------------------------------------------------------
 command -v ffmpeg >/dev/null || { echo "missing required tool: ffmpeg" >&2; exit 1; }
-[ -x install/xash3d ] || { echo "engine not built — run tools/build-engine.sh first" >&2; exit 1; }
+[ -x dist-test/xash3d ] || { echo "engine not built — run tools/build-engine.sh first" >&2; exit 1; }
 mkdir -p "$OUTDIR"
 
 # video encoder options (computed once; demo-independent)
@@ -142,8 +142,8 @@ wait_for_marker() {
 # RENDERINFO cvars; unified_video.cfg re-applies them after the -width/-height
 # cmdline, so set them there directly (persists; the game stays at this res).
 force_resolution() {
-	local vidcfg="install/$GAME/unified_video.cfg" kv c v
-	[ -f "$vidcfg" ] || vidcfg="install/valve/unified_video.cfg"
+	local vidcfg="dist-test/$GAME/unified_video.cfg" kv c v
+	[ -f "$vidcfg" ] || vidcfg="dist-test/valve/unified_video.cfg"
 	if [ -f "$vidcfg" ]; then
 		for kv in "width=$WIDTH" "height=$HEIGHT"; do
 			c=${kv%=*}; v=${kv#*=}
@@ -165,7 +165,7 @@ capture_mp4() {
 	local demo=$1 out=$2 fflog
 
 	# stage the demo into the gamedir so playdemo finds it
-	cp "demos/$demo.dem" "install/$GAME/$demo.dem"
+	cp "demos/$demo.dem" "dist-test/$GAME/$demo.dem"
 
 	FIFO=$(mktemp -u --suffix=.rawvideo); mkfifo "$FIFO"
 
@@ -175,7 +175,7 @@ capture_mp4() {
 	# streampreload_done.cfg the engine execs once the preload queue drains (a hook
 	# in Host_QueueStreamPreload). It runs `startmovie <fifo>` then `playdemo`.
 	# (This hook is the only path that reaches startmovie.)
-	DONECFG="install/$GAME/streampreload_done.cfg"; DONECFG_BAK=""
+	DONECFG="dist-test/$GAME/streampreload_done.cfg"; DONECFG_BAK=""
 	[ -f "$DONECFG" ] && { DONECFG_BAK="$DONECFG.capbak"; cp "$DONECFG" "$DONECFG_BAK"; }
 	# con_notifytime 0 suppresses the console notify overlay so captures are clean.
 	# The engine runs with -nowriteconfig, so this never persists to config.cfg.

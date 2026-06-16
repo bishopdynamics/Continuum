@@ -1,0 +1,8 @@
+# Only Continuum's own assets (continuum/) and this folder's docs are committed.
+# Any game folder dropped here (uplink/, etc.) is local — game content is never
+# committed. `/*` ignores only the direct children, so continuum/'s subtree is
+# fully tracked once the directory itself is re-included.
+/*
+!/.gitignore
+!/README.md
+!/continuum

@@ -21,12 +21,14 @@ gameinfo, matching the engine arch. So every custom-code mod is compiled from it
 own hlsdk-portable branch. (Asset/map-only mods that declare vanilla HL code need
 no entry — they run on valve's hl_<arch> lib.)
 
-Runs both INSIDE the build container and directly from a host checkout (see the
-SRC/OUT auto-detection below). On the host it installs straight into ./install/.
+Runs both INSIDE the build container (OUT=/out, the package staging tree) and
+directly from a host checkout for fast single-lib iteration — on the host it
+installs into ./dist-test/<game>/ (the dogfood run dir, alongside the engine),
+so a rebuilt lib lands exactly where you run it.
 
 Env (all optional):
   SRC       hlsdk-portable source w/ .git   (default: /src or <repo>/hlsdk-portable)
-  OUT       install root w/ the game dirs   (default: /out or <repo>/install)
+  OUT       game-dirs root                  (default: /out or <repo>/dist-test)
   HLSDK     throwaway build copy            (default: /tmp/b/hlsdk — NOT your tree)
   CONFIGURE_FLAGS="-T release -8"  target select (container sets this per-arch)
   FORCE=0                          1 = rebuild even if this arch's lib exists
@@ -49,7 +51,7 @@ SELECTION = Path(os.environ.get("GAME_LIBS_LIST") or SCRIPT_DIR / "game-libs.txt
 
 IN_CONTAINER = Path("/src/hlsdk-portable").is_dir()
 SRC = Path(os.environ.get("SRC") or ("/src/hlsdk-portable" if IN_CONTAINER else REPO / "hlsdk-portable"))
-OUT = Path(os.environ.get("OUT") or ("/out" if IN_CONTAINER else REPO / "install"))
+OUT = Path(os.environ.get("OUT") or ("/out" if IN_CONTAINER else REPO / "dist-test"))
 HLSDK = Path(os.environ.get("HLSDK") or "/tmp/b/hlsdk")
 CONFIGURE_FLAGS = os.environ.get("CONFIGURE_FLAGS", "-T release -8")
 FORCE = os.environ.get("FORCE", "0") == "1"

@@ -18,32 +18,15 @@ SDL_VERSION=2.32.10
 TARGETS=("$@")
 [ ${#TARGETS[@]} -eq 0 ] && TARGETS=(linux-amd64 linux-arm64 win32)
 
-# the redistributable Continuum assets (NEVER game-derived content: the
-# per-game menu art in gfx/shell/continuum/games is generated from the
-# user's own files and stays out)
+# Continuum's own always-mounted assets, committed under redist/continuum and
+# ALWAYS bundled. The per-game menu backgrounds (gfx/shell/continuum/games) are
+# composed at runtime from the user's own files and are intentionally absent from
+# redist/continuum, so they never ship.
 stage_assets()
 {
     local out=$1
-    local c=$out/continuum
-
-    # Continuum's own always-mounted content dir (the engine adds it to every game's
-    # search path). NEVER game-derived content: the per-game menu backgrounds in
-    # gfx/shell/continuum/games are composed at runtime from the user's own files and
-    # stay out.
-    mkdir -p "$c/gfx/shell/continuum" "$c/gfx/fonts"
-    cp -a install/continuum/gfx/shell/continuum/pill.png \
-          install/continuum/gfx/shell/continuum/dot.png \
-          install/continuum/gfx/shell/continuum/chip_current.png \
-          install/continuum/gfx/shell/continuum/lambda.png \
-          install/continuum/gfx/shell/continuum/default-bg.png \
-          install/continuum/gfx/shell/continuum/glyphs \
-          "$c/gfx/shell/continuum/"
-    cp -a install/continuum/gfx/fonts/Michroma.ttf \
-          install/continuum/gfx/fonts/OFL-Michroma.txt \
-          install/continuum/gfx/fonts/console.ttf \
-          install/continuum/gfx/fonts/OFL-FiraSans.txt \
-          install/continuum/gfx/fonts/console-font-license.txt \
-          "$c/gfx/fonts/"
+    mkdir -p "$out/continuum"
+    cp -a redist/continuum/. "$out/continuum/"
     cp tools/dist/README-DIST.md "$out/README.md"
 }
 

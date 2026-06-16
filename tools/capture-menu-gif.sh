@@ -48,13 +48,13 @@ DISPLAY=${DISPLAY:-:0}
 for tool in ffmpeg xwininfo; do
 	command -v "$tool" >/dev/null || { echo "missing required tool: $tool" >&2; exit 1; }
 done
-[ -x install/xash3d ] || { echo "engine not built — run tools/build-engine.sh first" >&2; exit 1; }
+[ -x dist-test/xash3d ] || { echo "engine not built — run tools/build-engine.sh first" >&2; exit 1; }
 
 # window title = the game's title (engine sets SDL caption to GI->title).
 # `|| true`: missing file / no match must not trip `set -e` (valve has no
 # gameinfo.txt — it uses liblist.gam).
-TITLE=$(grep -iE '^\s*title\b' "install/$GAME/gameinfo.txt" 2>/dev/null | head -1 | cut -d'"' -f2 || true)
-[ -n "$TITLE" ] || TITLE=$(grep -iE '^\s*game\b' "install/$GAME/liblist.gam" 2>/dev/null | head -1 | cut -d'"' -f2 || true)
+TITLE=$(grep -iE '^\s*title\b' "dist-test/$GAME/gameinfo.txt" 2>/dev/null | head -1 | cut -d'"' -f2 || true)
+[ -n "$TITLE" ] || TITLE=$(grep -iE '^\s*game\b' "dist-test/$GAME/liblist.gam" 2>/dev/null | head -1 | cut -d'"' -f2 || true)
 [ -n "$TITLE" ] || TITLE="Half-Life"
 
 mkdir -p "$(dirname "$OUT")"

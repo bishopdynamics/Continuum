@@ -3,7 +3,7 @@
 #
 # Usage: ./play-continuum.sh [game] [engine args...]
 #
-#   game    a game directory under install/ (default: valve), or an alias:
+#   game    a game directory under dist-test/ (default: valve), or an alias:
 #             hl, hl1        -> valve    (Half-Life)
 #             of, opfor      -> gearbox  (Opposing Force)
 #             bs, blueshift  -> bshift   (Blue Shift)
@@ -28,15 +28,15 @@ case "$1" in
     *) GAME=$1; shift ;;
 esac
 
-cd "$(dirname "$0")/install" || exit 1
+cd "$(dirname "$0")/dist-test" || { echo "no dist-test/ — run tools/dogfood.sh first" >&2; exit 1; }
 
 if [ ! -x ./xash3d ]; then
-    echo "engine not built — run tools/build-engine.sh first" >&2
+    echo "engine not built — run tools/dogfood.sh (or tools/build-engine.sh) first" >&2
     exit 1
 fi
 
 if [ ! -f "$GAME/liblist.gam" ] && [ ! -f "$GAME/gameinfo.txt" ]; then
-    echo "no game installed at install/$GAME — installed games:" >&2
+    echo "no game installed at dist-test/$GAME — installed games:" >&2
     for d in */; do
         d=${d%/}
         [ -f "$d/liblist.gam" ] || [ -f "$d/gameinfo.txt" ] && echo "  $d" >&2

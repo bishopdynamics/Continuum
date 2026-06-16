@@ -1,0 +1,4 @@
+console.ttf is Fira Sans Regular, (c) The Mozilla Foundation and Telefonica S.A.,
+licensed under the SIL Open Font License 1.1 (https://openfontlicense.org).
+Replace this file with any TrueType font to change the console typeface
+(Configuration > Advanced > Console Font must be set to Modern).

@@ -23,3 +23,9 @@ hlsdk-branches/
 /dist/
 
 Elefant-Offline.md
+
+# assets for some games, for us to study and understand. must not commit
+game-reference/
+
+# for testing dist, must not commit
+dist-test/
