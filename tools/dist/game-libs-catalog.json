@@ -1,0 +1,176 @@
+{
+  "ag": {
+    "branch": "aghl",
+    "server": "ag"
+  },
+  "aom": {
+    "branch": "aom",
+    "server": "hl"
+  },
+  "aomdc": {
+    "branch": "aomdc",
+    "server": "hl"
+  },
+  "asheep": {
+    "branch": "asheep",
+    "server": "hl"
+  },
+  "biglolly": {
+    "branch": "biglolly",
+    "server": "bl"
+  },
+  "blackops": {
+    "branch": "blackops",
+    "server": "hl"
+  },
+  "bshift": {
+    "branch": "bshift",
+    "server": "bshift"
+  },
+  "cad": {
+    "branch": "CAd",
+    "server": "hl"
+  },
+  "caseclosed": {
+    "branch": "caseclosed",
+    "server": "cc"
+  },
+  "clcampaign": {
+    "branch": "clcampaign",
+    "server": "hl"
+  },
+  "counter-life": {
+    "branch": "counter-life",
+    "server": "cl"
+  },
+  "cracklife": {
+    "branch": "cracklife",
+    "server": "hl"
+  },
+  "decay": {
+    "branch": "decay-pc",
+    "server": "decay"
+  },
+  "delta_particles": {
+    "branch": "delta_particles",
+    "server": "delta_particles"
+  },
+  "dmc": {
+    "branch": "dmc",
+    "server": "dmc"
+  },
+  "echoes": {
+    "branch": "echoes",
+    "server": "echoes"
+  },
+  "eftd": {
+    "branch": "eftd",
+    "server": "hl"
+  },
+  "gearbox": {
+    "branch": "opfor",
+    "candidates": [
+      "opfor",
+      "opforfixed"
+    ],
+    "server": "opfor"
+  },
+  "half-screwed": {
+    "branch": "half-screwed",
+    "server": "hl"
+  },
+  "hl_urbicide": {
+    "branch": "hl_urbicide",
+    "server": "hl"
+  },
+  "hltopdown": {
+    "branch": "hltopdown",
+    "server": "hl"
+  },
+  "hunger": {
+    "branch": "theyhunger",
+    "server": "einar"
+  },
+  "induction": {
+    "branch": "induction_1.2",
+    "server": "hl"
+  },
+  "noffice": {
+    "branch": "noffice",
+    "server": "nato"
+  },
+  "poke646": {
+    "branch": "poke646",
+    "server": "hl"
+  },
+  "rebellion": {
+    "branch": "rebellion",
+    "server": "rebellion"
+  },
+  "redempt": {
+    "branch": "redempt",
+    "server": "redempt"
+  },
+  "rockcrowbar": {
+    "branch": "RockCrowbar19",
+    "server": "rc"
+  },
+  "rp_pub": {
+    "branch": "residual_point",
+    "server": "rp"
+  },
+  "sci": {
+    "branch": "sci",
+    "server": "game"
+  },
+  "secret": {
+    "branch": "half-secret",
+    "server": "hl"
+  },
+  "sewer_beta": {
+    "branch": "sewer_beta",
+    "server": "hl"
+  },
+  "shall": {
+    "branch": "halloween",
+    "server": "spirit"
+  },
+  "spirit": {
+    "branch": "sohl1.2",
+    "server": "spirit"
+  },
+  "thegate": {
+    "branch": "thegate",
+    "server": "hl"
+  },
+  "tot": {
+    "branch": "tot",
+    "server": "hl"
+  },
+  "valve": {
+    "branch": "master",
+    "candidates": [
+      "master",
+      "bot10",
+      "gravgun",
+      "hlfixed",
+      "insecure",
+      "bubblemod",
+      "mobile_hacks",
+      "abi2_prototype"
+    ],
+    "server": "hl"
+  },
+  "vendetta": {
+    "branch": "poke646_vendetta",
+    "server": "hl"
+  },
+  "visitors": {
+    "branch": "visitors",
+    "server": "hl"
+  },
+  "zombie-x-dle": {
+    "branch": "zombie-x",
+    "server": "zx"
+  }
+}

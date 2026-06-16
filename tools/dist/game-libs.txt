@@ -1,0 +1,20 @@
+# Game libraries to build (one folder per line). build-game-libs.py looks each
+# folder up in game-libs-catalog.json to find its hlsdk-portable branch, then
+# builds + installs into install/<folder>/{dlls,cl_dlls}.
+#
+#   - blank lines and # comments are ignored
+#   - a folder must exist in the catalog (run: build-game-libs.py catalog)
+#   - to pick a non-default branch for a folder, write  folder=branch
+#       e.g.  gearbox=opforfixed   (instead of the default opfor)
+#   - asset/map-only mods (dayone, uplink, darkstar, ...) need NO line — they run
+#     on valve's hl_<arch> lib, not their own game code.
+
+valve
+gearbox
+bshift
+hunger
+
+# more classic mods (uncomment once their assets are installed):
+# poke646
+# spirit          # sohl1.2
+# asheep

@@ -6,13 +6,12 @@ set -e
 
 ARCH=$(uname -m)
 EXTRA=""
-[ "$ARCH" = "x86_64" ] && EXTRA="-8"
+[ "$ARCH" = "x86_64" ] && EXTRA="-8"   # 64-bit; arm64 needs no flag (DEST_CPU auto)
 
 export HOME=/tmp
 
-mkdir -p /tmp/b/engine /tmp/b/hlsdk
+mkdir -p /tmp/b/engine
 ( cd /src/xash3d-fwgs && tar cf - --exclude=./build . ) | tar xf - -C /tmp/b/engine
-( cd /src/hlsdk-portable && tar cf - --exclude=./build . ) | tar xf - -C /tmp/b/hlsdk
 
 echo "=== engine ($ARCH) ==="
 cd /tmp/b/engine
@@ -22,10 +21,13 @@ cd /tmp/b/engine
 ./waf install --destdir=/out
 
 echo "=== game libraries ($ARCH) ==="
-cd /tmp/b/hlsdk
-./waf configure -T release $EXTRA
-./waf build
-./waf install --destdir=/out
+# Build every supported mod's game libs from its own hlsdk-portable branch
+# (master=valve, opfor=gearbox, bshift, theyhunger=hunger, ...). The branch loop
+# + manifest live in build-game-libs.sh; CONFIGURE_FLAGS selects the target —
+# here, this container's arch. The same script serves win32/macOS later with a
+# different toolchain + flags.
+CONFIGURE_FLAGS="-T release $EXTRA" OUT=/out \
+    python3 /src/tools/dist/build-game-libs.py
 
 echo "=== bundle SDL2 ==="
 cp -av /opt/SDL2/lib/libSDL2-2.0.so* /out/

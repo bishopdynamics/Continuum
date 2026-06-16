@@ -7,6 +7,7 @@ ARG SDL_VERSION=2.32.10
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential mingw-w64 python3 pkg-config wget ca-certificates \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 RUN wget -q "https://github.com/libsdl-org/SDL/releases/download/release-${SDL_VERSION}/SDL2-devel-${SDL_VERSION}-mingw.tar.gz" -O- | tar -xzf - -C /tmp \

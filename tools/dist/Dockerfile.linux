@@ -7,7 +7,7 @@ FROM debian:bookworm-slim
 ARG SDL_VERSION=2.32.10
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential cmake ninja-build python3 pkg-config wget ca-certificates \
+    build-essential cmake ninja-build python3 pkg-config wget ca-certificates git \
     libasound2-dev libpulse-dev libx11-dev libxext-dev libxrandr-dev \
     libxcursor-dev libxfixes-dev libxi-dev libxss-dev libwayland-dev \
     libxkbcommon-dev libdrm-dev libgbm-dev libgl1-mesa-dev libgles2-mesa-dev \

@@ -23,9 +23,14 @@ W
 chmod +x /tmp/windres-wrap
 export WINRC=/tmp/windres-wrap
 
-mkdir -p /tmp/b/engine /tmp/b/hlsdk
+# NOTE: Windows is DEFERRED for the initial release (Steam Deck / amd64 Linux
+# only); this container is kept working and ready. 32-bit (i686) is the agreed
+# Windows target: a 32-bit engine can load mods' own SHIPPED 32-bit .dlls
+# directly — the widest mod compatibility of any platform, and the one place
+# closed-source / no-hlsdk-branch mods still run.
+
+mkdir -p /tmp/b/engine
 ( cd /src/xash3d-fwgs && tar cf - --exclude=./build . ) | tar xf - -C /tmp/b/engine
-( cd /src/hlsdk-portable && tar cf - --exclude=./build . ) | tar xf - -C /tmp/b/hlsdk
 
 echo "=== engine (win32 i686) ==="
 cd /tmp/b/engine
@@ -37,10 +42,13 @@ cd /tmp/b/engine
 ./waf install --destdir=/out
 
 echo "=== game libraries (win32 i686) ==="
-cd /tmp/b/hlsdk
-./waf configure -T release
-./waf build
-./waf install --destdir=/out
+# Same branch loop as Linux (build-game-libs.sh). The MinGW toolchain exported
+# above is inherited by the script; CONFIGURE_FLAGS has no -8 (32-bit) and the
+# hlsdk build emits <name>.dll (no arch suffix), which the script's cp globs
+# already handle. FUTURE: when Windows ships, decide whether to also fall back
+# to mods' own shipped .dlls for branches we don't build ourselves.
+CONFIGURE_FLAGS="-T release" OUT=/out \
+    python3 /src/tools/dist/build-game-libs.py
 
 echo "=== bundle SDL2 ==="
 cp -av /opt/SDL2/i686-w64-mingw32/bin/SDL2.dll /out/
