@@ -21,3 +21,5 @@ hlsdk-branches/
 
 # build_all.sh output (staging + artifacts)
 /dist/
+
+Elefant-Offline.md
