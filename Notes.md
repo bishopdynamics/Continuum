@@ -1,9 +1,5 @@
 # Notes
 
-## small things
-
-- in settings, some rows have an explainer card on the right, most dont. Can we add some more of those, particularly for the features we added? it doesn't have to be every single setting, but anything that benefits from a more detailed explanation
-
 
 ### Deferred: FBO-based shadow map (resolution + soft blur) — NOT doing now
 
