@@ -9,10 +9,14 @@
 # The GIF is built in two passes (palettegen -> paletteuse) from a SINGLE
 # lossless grab — grabbing twice would capture two different navigations.
 #
-# Output: doc/media/menu-tour.gif (committed; kept small via fps + scale).
+# Output: dist/media/<name>.gif (kept small via fps + scale). dist/ is gitignored;
+# shoot several takes, then copy the best by hand into doc/media/menu-tour.gif for
+# the README. (Gameplay GIFs/MP4s come from tools/capture-demo.sh, also into
+# dist/media/; the menu can't be demo-recorded, so it has its own grabber here.)
 #
 # Usage:
-#   tools/capture-menu-gif.sh
+#   tools/capture-menu-gif.sh [name]
+#     name   output basename -> dist/media/<name>.gif (default: menu-tour)
 #
 # Env overrides:
 #   GAME=valve  WIDTH=1280  HEIGHT=720   (engine window)
@@ -23,12 +27,13 @@
 #                 tears badly under x11grab)
 #   VSYNC=1      (force gl_vsync on during the grab — also kills tearing;
 #                 persists to config afterwards, which is fine)
-#   OUT=doc/media/menu-tour.gif
+#   OUT=dist/media/<name>.gif
 #
 # Requires: ffmpeg (with x11grab), xwininfo, an X11 session ($DISPLAY).
 set -euo pipefail
 cd "$(dirname "$0")/.." || exit 1   # repo root
 
+NAME=${1:-menu-tour}
 GAME=${GAME:-valve}
 WIDTH=${WIDTH:-1280}
 HEIGHT=${HEIGHT:-720}
@@ -37,7 +42,7 @@ GIF_FPS=${GIF_FPS:-10}
 GIF_WIDTH=${GIF_WIDTH:-640}
 FPS_CAP=${FPS_CAP:-60}
 VSYNC=${VSYNC:-1}
-OUT=${OUT:-doc/media/menu-tour.gif}
+OUT=${OUT:-dist/media/${NAME}.gif}
 DISPLAY=${DISPLAY:-:0}
 
 for tool in ffmpeg xwininfo; do

@@ -2,12 +2,22 @@
 
 ## small things
 
-- flashlight vertical offset: -8
-  - the suit's flashlight is actually on the chest. Also this produces the coolest looking shadows
+- scripted menu tour
+  - we have done some testing where you navigated the menus to test something
+  - can we do the same thing, from a script, to do our menu tour? 
+  - this would be better than our fixed recording length, only as long as it takes to do all the steps in the script
+  - 
+
+- Test chamber ladder: the shadow on this ladder is abour 20 units offset from the actual ladder, horizontally
+  - might just be a map error that we can't do anything about, most other ladders are OK
+- test chamber elevator: the sample elevator does not receive entity shadows, it is a moving brush i think
+- 
 
 
 ## medium things
 
+- For world AO calculations, can we filter surfaces that we calculate based on size? I want to skip surfaces smaller than 64 units on either axis. This will fix an issue where there is a tiny 5x10 recessed shelf in a wall, and the floor of the shelf currently gets weird AO that shouldnt be there
+  - we need a slider for this, range 8 to 512, default 64
 
 - I'm seeing an issue where a scientist walking around suddenly becomes darker (like he stepped out of a light), and then as they keep walking they become lit again. I tried turning off all our new features, and it looks like this is a pre-existing feature of xash3D. It's some kind of dynamic lighting on entities from map lights, but it seems to be sampling at a very low rate, or doesn't have fine-grained enough light levels to switch between, because they "pop" between different light levels as they walk around. My question: can we find this feature, and give it some more granularity? 
 

@@ -12,4 +12,7 @@ You _must_ create memories in Elefant as you go, so that no progress information
 
 NOTE: you must not use `rm -f` the `-f` flag is not allowed, and if you try a command that contains that usage, the whole command will be denied. Just do it without `-f` and it will work.
 
+The file "Elefant-Offline.md" is our local cache for writing Elefant memories when Elefant is offline; read it. 
+If you find memories there, try to add them to Elefant, and if successful: remove them from the local cache.
+
 Read Notes.md for my current notes
