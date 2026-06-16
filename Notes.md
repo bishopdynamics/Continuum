@@ -1,17 +1,18 @@
 # Notes
 
-
 ## small things
 
-- is compose_backgrounds.py obsolete? if so delete it
-- is hlstream_preprocess.py obsoleter? if so delete it
-  - if not, what does it do?
+- flashlight vertical offset: -8
+  - the suit's flashlight is actually on the chest. Also this produces the coolest looking shadows
+
 
 ## medium things
 
 
 - I'm seeing an issue where a scientist walking around suddenly becomes darker (like he stepped out of a light), and then as they keep walking they become lit again. I tried turning off all our new features, and it looks like this is a pre-existing feature of xash3D. It's some kind of dynamic lighting on entities from map lights, but it seems to be sampling at a very low rate, or doesn't have fine-grained enough light levels to switch between, because they "pop" between different light levels as they walk around. My question: can we find this feature, and give it some more granularity? 
 
+- uplink is actually legal to distribute, we could include so that Continuum has _some_ content by default
+- 
 
 ## Remaining roadmap to v1 release
 
