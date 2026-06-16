@@ -1,6 +1,35 @@
 # Notes
 
 
+
+## medium things
+
+- I'm seeing an issue where a scientist walking around suddenly becomes darker (like he stepped out of a light), and then as they keep walking they become lit again. I tried turning off all our new features, and it looks like this is a pre-existing feature of xash3D. It's some kind of dynamic lighting on entities from map lights, but it seems to be sampling at a very low rate, or doesn't have fine-grained enough light levels to switch between, because they "pop" between different light levels as they walk around. My question: can we find this feature, and give it some more granularity?
+- as a character walks past multiple lights, the shadow pops between the different angles. Can we make this smoother?
+
+## Remaining roadmap to v1 release
+
+- complete the items in sections above this section (if any)
+- macos universal build still needs a Mac (tools/build_all.sh prints guidance)
+- win32+wine controller hotplug unreliable — needs a real-Windows test
+- rebuild + reship the dist artifacts (linux-amd64 tarball + flatpak) so they include all the menu changes (HD toggle, cheats, flashlight)
+- separate build scripts for:
+  - linux-amd64, linux-arm64, linux-flatpak (amd64 only for now)
+  - Windows-amd64
+  - macos-universal
+- before any public release: 
+  - tighten the flatpak grant (currently --filesystem=home + --device=all)
+  - documentation (see section below)
+
+
+## Github Repositories
+
+Umbrella project: https://github.com/bishopdynamics/Continuum
+xash3d fork: https://github.com/bishopdynamics/xash3d-fwgs
+mainui fork: https://github.com/bishopdynamics/mainui_cpp
+hlsdk fork: https://github.com/bishopdynamics/hlsdk-portable
+
+
 ### Deferred: FBO-based shadow map (resolution + soft blur) — NOT doing now
 
 The flashlight shadow map currently renders the light's depth into a *corner of the
@@ -25,34 +54,3 @@ corner method as a fallback), but it's a real architectural line to cross and th
 payoff is quality-only (the acne — the thing that looked bad — is already fixed).
 Revisit only if we decide we want *soft* flashlight shadows; resolution alone isn't
 worth it. One FBO buys both.
-
-## medium things
-
-- entity shadows: if the "floor" that the shadow would draw on is more than 64 units away from the bounds of the entity (the entity's feet), skip that shadow. This is to address a spot in the opening tram ride, where a character (far away) is walking on a raised platform, but the shadow is landing on the floor below the platform.
-- I'm seeing an issue where a scientist walking around suddenly becomes darker (like he stepped out of a light), and then as they keep walking they become lit again. I tried turning off all our new features, and it looks like this is a pre-existing feature of xash3D. It's some kind of dynamic lighting on entities from map lights, but it seems to be sampling at a very low rate, or doesn't have fine-grained enough light levels to switch between, because they "pop" between different light levels as they walk around. My question: can we find this feature, and give it some more granularity?
-
-## Remaining roadmap to v1 release
-
-- complete the items in sections above this section (if any)
-- macos universal build still needs a Mac (tools/build_all.sh prints guidance)
-- win32+wine controller hotplug unreliable — needs a real-Windows test
-- rebuild + reship the dist artifacts (linux-amd64 tarball + flatpak) so they include all the menu changes (HD toggle, cheats, flashlight)
-- separate build scripts for:
-  - linux-amd64, linux-arm64, linux-flatpak (amd64 only for now)
-  - Windows-amd64
-  - macos-universal
-- before any public release: 
-  - tighten the flatpak grant (currently --filesystem=home + --device=all)
-  - documentation (see section below)
-
-
-
-
-## Github Repositories
-
-Umbrella project: https://github.com/bishopdynamics/Continuum
-xash3d fork: https://github.com/bishopdynamics/xash3d-fwgs
-mainui fork: https://github.com/bishopdynamics/mainui_cpp
-hlsdk fork: https://github.com/bishopdynamics/hlsdk-portable
-
-
