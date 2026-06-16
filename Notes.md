@@ -1,5 +1,6 @@
 # Notes
 
+
 ## small things
 
 - scripted menu tour
@@ -11,8 +12,16 @@
 - Test chamber ladder: the shadow on this ladder is abour 20 units offset from the actual ladder, horizontally
   - might just be a map error that we can't do anything about, most other ladders are OK
 - test chamber elevator: the sample elevator does not receive entity shadows, it is a moving brush i think
-- 
+- console: lines seem to be limited length and wrap, but it is narrower than the screen width. math was probably meant for 4:3 originally
 
+
+- how do we handle client.so and client_amd64.so ?
+  - user adds a new mod, it only has .dlls
+  - do we need to build them per-game, or can we build them once along with the rest of the binaries, and then copy it into each game folder at startup?
+
+- after changing windowed mode / resolution, sometimes the text size of the menu UI is incorrect until restart
+
+- on a fresh game folder, new game is greyed out??
 
 ## medium things
 
@@ -22,18 +31,16 @@
 - I'm seeing an issue where a scientist walking around suddenly becomes darker (like he stepped out of a light), and then as they keep walking they become lit again. I tried turning off all our new features, and it looks like this is a pre-existing feature of xash3D. It's some kind of dynamic lighting on entities from map lights, but it seems to be sampling at a very low rate, or doesn't have fine-grained enough light levels to switch between, because they "pop" between different light levels as they walk around. My question: can we find this feature, and give it some more granularity? 
 
 - uplink is actually legal to distribute, we could include so that Continuum has _some_ content by default
-- 
+  - so dist package becomes:
+  - Continuum/
+    - xash3d.exe
+    - continuum/
+    - uplink/
+    - <user places valve folder here>
 
 ## Remaining roadmap to v1 release
 
 - complete the items in sections above this section (if any)
-- macos universal build still needs a Mac (tools/build_all.sh prints guidance)
-- win32+wine controller hotplug unreliable — needs a real-Windows test
-- rebuild + reship the dist artifacts (linux-amd64 tarball + flatpak) so they include all the menu changes (HD toggle, cheats, flashlight)
-- separate build scripts for:
-  - linux-amd64, linux-arm64, linux-flatpak (amd64 only for now)
-  - Windows-amd64
-  - macos-universal
 - before any public release: 
   - tighten the flatpak grant (currently --filesystem=home + --device=all)
   - documentation (see section below)
@@ -45,6 +52,14 @@ Umbrella project: https://github.com/bishopdynamics/Continuum
 xash3d fork: https://github.com/bishopdynamics/xash3d-fwgs
 mainui fork: https://github.com/bishopdynamics/mainui_cpp
 hlsdk fork: https://github.com/bishopdynamics/hlsdk-portable
+
+
+## Deferred Items
+
+### Deferred: non-linux platform suport
+
+- windows: i dont have a machine to test, and I dont care
+- macos: 32bit/64bit compatibility issues
 
 
 ### Deferred: FBO-based shadow map (resolution + soft blur) — NOT doing now
