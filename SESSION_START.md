@@ -10,4 +10,6 @@ This project was previously named "xash-streaming" and so many of the memories i
 You _must_ consult Elefant for relevant information prior to taking any actions
 You _must_ create memories in Elefant as you go, so that no progress information is lost between sessions
 
+NOTE: you must not use `rm -f` the `-f` flag is not allowed, and if you try a command that contains that usage, the whole command will be denied. Just do it without `-f` and it will work.
+
 Read Notes.md for my current notes
