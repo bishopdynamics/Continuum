@@ -3,6 +3,9 @@
 
 ## small things
 
+- in the game menu (with newgame, loadgame, savegame), remove the "preview" image on the right side of the page, it is the same as the background image so it looks weird
+- when clicking things in the UI, we get the classic menu sounds (which i like). Can we use these sounds for gamepad navigation too?
+
 - scripted menu tour
   - we have done some testing where you navigated the menus to test something
   - can we do the same thing, from a script, to do our menu tour? 
@@ -28,15 +31,8 @@
 - For world AO calculations, can we filter surfaces that we calculate based on size? I want to skip surfaces smaller than 64 units on either axis. This will fix an issue where there is a tiny 5x10 recessed shelf in a wall, and the floor of the shelf currently gets weird AO that shouldnt be there
   - we need a slider for this, range 8 to 512, default 64
 
-- I'm seeing an issue where a scientist walking around suddenly becomes darker (like he stepped out of a light), and then as they keep walking they become lit again. I tried turning off all our new features, and it looks like this is a pre-existing feature of xash3D. It's some kind of dynamic lighting on entities from map lights, but it seems to be sampling at a very low rate, or doesn't have fine-grained enough light levels to switch between, because they "pop" between different light levels as they walk around. My question: can we find this feature, and give it some more granularity? 
+- I'm seeing an issue where a scientist walking around suddenly becomes darker (like he stepped out of a light), and then as they keep walking they become lit again. I tried turning off all our new features, and it looks like this is a pre-existing feature of xash3D. It's some kind of dynamic lighting on entities from map lights, but it seems to be sampling at a very low rate, or doesn't have fine-grained enough light levels to switch between, because they "pop" between different light levels as they walk around. My question: can we find this feature, and give it some more granularity? We implemented a fix that used bilinear interpolation to smooth out the light levels, but it didnt re
 
-- uplink is actually legal to distribute, we could include so that Continuum has _some_ content by default
-  - so dist package becomes:
-  - Continuum/
-    - xash3d.exe
-    - continuum/
-    - uplink/
-    - <user places valve folder here>
 
 ## Remaining roadmap to v1 release
 
