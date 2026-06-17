@@ -3,25 +3,31 @@
 
 ## small things
 
-- scripted menu tour
-  - we have done some testing where you navigated the menus to test something
-  - can we do the same thing, from a script, to do our menu tour? 
-  - this would be better than our fixed recording length, only as long as it takes to do all the steps in the script
-  - 
-
 - Test chamber ladder: the shadow on this ladder is about 20 units offset from the actual ladder, horizontally
   - might just be a map error that we can't do anything about, most other ladders are OK
   - bonus note: this ladder's shadows don't move when the flashlight moves, so that's the real bug
 - test chamber elevator: the sample elevator does not receive entity shadows, it is a moving brush i think
 
-- console: lines seem to be limited length and wrap, but it is narrower than the screen width. math was probably meant for 4:3 originally
-
-
 - the demo "cascade" routinely fails to render some things. Feels like the full data needed to play the demo is not getting loaded. This happens the same if we do `xash3d -playdemo` (like our capture-demo script) and if i just use the "playdemo" command in console
-  - its actually worse than i thought: if i load a savegame from around the same area (on the tram, about 10 seconds from arriving at anomolous materials), i get the same issue. We broke this somehow in our changes on June 16th, need to bisect
+  - its actually worse than i thought: if i load a savegame from around the same area (on the tram, about 10 seconds from arriving at anomolous materials), i get the same issue. We broke this somehow in our changes on June 16th, may need to bisect
   - if i go back and start a new game (which loads all the assets including the tram), it looks fine, and then if i load the savegame or play the demo, it also looks fine. Playdemo and loadgame are not doing preload hook right, or perhaps its a race condition?
 
 - when entering the game picker page, there is a hitch while the backgrounds are loaded. Can we pre-load them at start so that they're warm?
+
+
+## Menu Tour Scripting System
+
+Enhancements to our already-awesome menu tour scripting system
+
+- new verb: play_demo <name> <wait>
+  - play a demofile by name, optionally wait for it to finish (otherwise script continues immediately after)
+  - this will help me show a really specific part of the game without relying on a savegame
+- new verb: run_cmd <command>
+  - run a console command (bypassing sv_cheats guards)
+  - this will let me record mid-game on/off demos of each feature like AO and flashlight shadows
+
+- can we handle switching games?
+  - if my script navigates to blue shift, and then the game restarts, i assume our script is gone. can we resume execution?
 
 ## Remaining roadmap to v1 release
 
