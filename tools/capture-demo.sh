@@ -1,32 +1,26 @@
 #!/bin/bash
-# Capture a recorded demo to BOTH an MP4 and a GIF in a single pass: play the
-# demo back on the engine, dump every rendered frame straight from the engine to
-# an MP4, then build a GIF from that finished MP4. One demo run, two outputs.
+# Capture a recorded demo to an MP4: play the demo back on the engine and dump
+# every rendered frame straight from the engine to an H.264 file in one pass.
 # Replaces the old trio: capture-demo-video.sh, capture-all-demo-videos.sh,
 # capture-gif-of-gameplay.sh.
 #
-# GAMEPLAY ONLY. Demos cannot record the menu UI (mainui isn't part of the demo
-# stream), so the menu-tour GIF still comes from the hand-driven, screen-grabbed
-# tools/capture-menu-gif.sh.
+# GAMEPLAY ONLY, MP4 ONLY. Demos can't record the menu UI (mainui isn't part of
+# the demo stream); the menu-tour GIF is a separate hand-driven, screen-grabbed
+# tools/capture-menu-gif.sh. GIFs of gameplay proved impractical (huge files for
+# minutes-long demos), so this script no longer produces them — pull a short clip
+# from the MP4 by hand if you ever need a loop.
 #
 # Frame source: the engine's `startmovie <fifo>` writes the raw RGBA backbuffer
 # of every rendered frame to a FIFO (glReadPixels — no compositor, no async
 # screen read, so no tearing). ffmpeg reads that FIFO as rawvideo and encodes
-# H.264 (NVENC by default), capturing game audio from PulseAudio in parallel; the
-# demo ending auto-stops the movie (engine closes the FIFO -> ffmpeg sees EOF).
-# The GIF is then a two-pass palettegen/paletteuse encode FROM the finished MP4 —
-# the MP4 is a file by then, so re-reading it twice is free and no second demo
-# playback is needed. Deriving the GIF from the lossy MP4 instead of a lossless
-# intermediate is imperceptible at the GIF's downscaled fps/size and avoids a
-# huge temp file. Frames are bottom-up (glReadPixels order); ffmpeg flips (vflip).
+# H.264 (hardware when available — see ENCODER), capturing game audio from
+# PulseAudio in parallel; the demo ending auto-stops the movie (engine closes the
+# FIFO -> ffmpeg sees EOF). Frames are bottom-up (glReadPixels order); vflip flips.
 #
 # Output (dist/ is gitignored — copyrighted gameplay, NOT committed):
 #   dist/media/<demo>.mp4   master capture
-#   dist/media/<demo>.gif   small README-embeddable version
-# Pick the best GIF by hand and copy it into doc/media/ for the docs.
 #
-# Idempotent: a demo whose MP4 already passes the size check is skipped; if only
-# the GIF is missing it is rebuilt from the existing MP4 (no re-capture). FORCE=1
+# Idempotent: a demo whose MP4 already passes the size check is skipped. FORCE=1
 # re-captures regardless. The capture has a rare failure that ends after a second
 # or two, leaving a tiny file — we validate by size and retry up to RETRIES times.
 #
@@ -40,15 +34,16 @@
 #               into unified_video.cfg, so the game stays at this res. FPS must
 #               match the render rate so the timeline is right.)
 #   FPS_CAP=60  VSYNC=1                          (engine render pacing)
-#   ENCODER=h264_nvenc  CQ=19  NVENC_PRESET=p6   (GPU encode; CQ lower = better)
-#   ENCODER=libx264     CRF=18  PRESET=slow      (CPU fallback)
+#   ENCODER=auto                                 (default: probe libcuda->nvenc,
+#               else a render node->vaapi, else libx264. Survives GPU swaps.)
+#   ENCODER=h264_nvenc  CQ=19  NVENC_PRESET=p6   (NVIDIA GPU encode; needs CUDA)
+#   ENCODER=h264_vaapi  CQ=19  VAAPI_DEV=/dev/dri/renderD128  (AMD/Intel GPU)
+#   ENCODER=libx264     CRF=18  PRESET=slow      (CPU; always works, no driver)
 #   AUDIO=1  AUDIO_DEV=<src>  ABITRATE=192k      (game audio; AUDIO=0 off)
-#   GIF_FPS=10  GIF_WIDTH=640                    (GIF frame rate + width; FPS must
-#               be an even multiple of GIF_FPS — 60/10=6 — so kept frames are whole)
 #   MIN_MB=5  RETRIES=2  FORCE=0  OUTDIR=dist/media
 #
-# Requires: ffmpeg (rawvideo + the chosen encoder + gif), the movie-capable
-# engine (startmovie/endmovie), pactl for audio.
+# Requires: ffmpeg (rawvideo + the chosen encoder), the movie-capable engine
+# (startmovie/endmovie), pactl for audio.
 set -euo pipefail
 cd "$(dirname "$0")/.." || exit 1   # repo root
 
@@ -58,16 +53,15 @@ HEIGHT=${HEIGHT:-720}
 FPS=${FPS:-60}
 FPS_CAP=${FPS_CAP:-60}
 VSYNC=${VSYNC:-1}
-ENCODER=${ENCODER:-h264_nvenc}   # GPU encode; set ENCODER=libx264 for CPU
-CQ=${CQ:-19}                     # NVENC constant quality (lower = better)
+ENCODER=${ENCODER:-auto}         # auto-detect; or h264_nvenc/h264_vaapi/libx264
+CQ=${CQ:-19}                     # NVENC/VAAPI constant quality (lower = better)
 NVENC_PRESET=${NVENC_PRESET:-p6} # p1 fastest .. p7 best
 CRF=${CRF:-18}                   # libx264 fallback quality
 PRESET=${PRESET:-slow}           # libx264 fallback preset
+VAAPI_DEV=${VAAPI_DEV:-/dev/dri/renderD128}  # AMD/Intel VAAPI render node
 AUDIO=${AUDIO:-1}                # capture game audio too (PulseAudio/PipeWire)
 AUDIO_DEV=${AUDIO_DEV:-}         # override the capture source (default: auto)
 ABITRATE=${ABITRATE:-192k}
-GIF_FPS=${GIF_FPS:-10}
-GIF_WIDTH=${GIF_WIDTH:-640}
 MIN_MB=${MIN_MB:-5}              # a valid capture is at least this many MB (real
                                  # >=10s runs are ~10 MB+, failed ones under ~1 MB)
 RETRIES=${RETRIES:-2}            # extra attempts after the first (up to 1+RETRIES)
@@ -80,11 +74,53 @@ command -v ffmpeg >/dev/null || { echo "missing required tool: ffmpeg" >&2; exit
 [ -x dist-test/xash3d ] || { echo "engine not built — run tools/build-engine.sh first" >&2; exit 1; }
 mkdir -p "$OUTDIR"
 
-# video encoder options (computed once; demo-independent)
-if [[ "$ENCODER" == *nvenc* ]]; then
-	VOPTS=(-c:v "$ENCODER" -preset "$NVENC_PRESET" -rc vbr -cq "$CQ" -b:v 0)
+# --- encoder selection (computed once; demo-independent) -------------------
+# A 1s lavfi->null encode is the cheapest honest "can this encoder actually
+# init on this machine?" test — nvenc needs CUDA (libcuda.so.1, NVIDIA-only),
+# vaapi needs a working render node; libx264 always works. Probing here means a
+# GPU swap (e.g. NVIDIA->AMD) never silently breaks the capture: we pick what's
+# present instead of dumping every frame into an encoder that can't open.
+enc_can_init() {  # <encoder> [extra ffmpeg args before -c:v ...]
+	local enc=$1; shift
+	ffmpeg -hide_banner -loglevel error -f lavfi \
+		-i testsrc=size=320x240:rate=10:duration=1 "$@" \
+		-c:v "$enc" -f null - >/dev/null 2>&1
+}
+
+if [ "$ENCODER" = auto ]; then
+	if enc_can_init h264_nvenc; then ENCODER=h264_nvenc
+	elif [ -e "$VAAPI_DEV" ] && enc_can_init h264_vaapi \
+		-vaapi_device "$VAAPI_DEV" -vf 'format=nv12,hwupload'; then ENCODER=h264_vaapi
+	else ENCODER=libx264; fi
+	echo "encoder: auto-selected $ENCODER"
 else
-	VOPTS=(-c:v "$ENCODER" -crf "$CRF" -preset "$PRESET")
+	echo "encoder: $ENCODER (explicit)"
+fi
+
+# Per-encoder ffmpeg wiring. Frames arrive bottom-up RGBA, so every path vflips.
+# VAAPI additionally uploads to a GPU surface (format=nv12,hwupload) and takes a
+# device arg; its output is already an nv12 hwframe, so it must NOT get the
+# software -pix_fmt yuv420p the other two need.
+DEVOPTS=(); PIXFMT=(-pix_fmt yuv420p); VF=vflip
+case "$ENCODER" in
+*nvenc*)
+	VOPTS=(-c:v "$ENCODER" -preset "$NVENC_PRESET" -rc vbr -cq "$CQ" -b:v 0) ;;
+*vaapi*)
+	DEVOPTS=(-vaapi_device "$VAAPI_DEV"); VF='vflip,format=nv12,hwupload'; PIXFMT=()
+	VOPTS=(-c:v "$ENCODER" -rc_mode CQP -qp "$CQ") ;;
+*)
+	VOPTS=(-c:v "$ENCODER" -crf "$CRF" -preset "$PRESET") ;;
+esac
+
+# Fail-fast preflight: prove the resolved encoder + its exact filter/device wiring
+# can init, so a broken encoder errors out clearly here instead of burning every
+# capture attempt (the retry loop is for transient frame drops, not dead encoders).
+if ! ffmpeg -hide_banner -loglevel error -f lavfi -i testsrc=size=320x240:rate=10:duration=1 \
+	${DEVOPTS[@]+"${DEVOPTS[@]}"} -vf "$VF" "${VOPTS[@]}" ${PIXFMT[@]+"${PIXFMT[@]}"} \
+	-f null - >/dev/null 2>&1; then
+	echo "error: encoder '$ENCODER' failed to initialize on this system." >&2
+	echo "  set ENCODER=libx264 (CPU, always works) or ENCODER=h264_vaapi (AMD/Intel)." >&2
+	exit 1
 fi
 
 # audio: capture the monitor of the default output sink (= what the game plays).
@@ -198,10 +234,11 @@ capture_mp4() {
 	fflog=$(mktemp --suffix=.ffmpeg.log)
 	echo "  recording -> $out ($ENCODER${MON:+ + audio})"
 	ffmpeg -hide_banner -loglevel verbose -y \
+		${DEVOPTS[@]+"${DEVOPTS[@]}"} \
 		-f rawvideo -pixel_format rgba -video_size "${WIDTH}x${HEIGHT}" -framerate "$FPS" \
 		-thread_queue_size 1024 -i "$FIFO" \
 		${AUDIO_IN[@]+"${AUDIO_IN[@]}"} \
-		-vf vflip ${AUDIO_MAP[@]+"${AUDIO_MAP[@]}"} "${VOPTS[@]}" -pix_fmt yuv420p \
+		-vf "$VF" ${AUDIO_MAP[@]+"${AUDIO_MAP[@]}"} "${VOPTS[@]}" ${PIXFMT[@]+"${PIXFMT[@]}"} \
 		-movflags +faststart "$out" 2>"$fflog" &
 	FFMPEG_PID=$!
 
@@ -236,33 +273,14 @@ capture_mp4() {
 	return 0
 }
 
-# make_gif <in.mp4> <out.gif> — two-pass palette GIF from the finished MP4.
-make_gif() {
-	local mp4=$1 gif=$2 pal filters
-	pal=$(mktemp --suffix=.png)
-	filters="fps=${GIF_FPS},scale=${GIF_WIDTH}:-1:flags=lanczos"
-	echo "  encoding GIF -> $gif"
-	ffmpeg -hide_banner -loglevel warning -y -i "$mp4" \
-		-vf "${filters},palettegen=stats_mode=diff" -update 1 "$pal"
-	ffmpeg -hide_banner -loglevel warning -y -i "$mp4" -i "$pal" \
-		-lavfi "${filters} [x]; [x][1:v] paletteuse=dither=bayer:bayer_scale=3" "$gif"
-	[ -f "$pal" ] && rm "$pal"
-}
-
 # capture_one <demo> — full pipeline for one demo with skip/retry. Returns
 # non-zero only on a capture that fails after all retries.
 capture_one() {
 	local demo=$1
-	local mp4="$OUTDIR/$demo.mp4" gif="$OUTDIR/$demo.gif" ok=0 attempt
+	local mp4="$OUTDIR/$demo.mp4" ok=0 attempt
 
 	if [ "$FORCE" != 1 ] && valid_mp4 "$mp4"; then
-		if [ -f "$gif" ]; then
-			echo "skip $demo (mp4+gif already in $OUTDIR)"
-			return 0
-		fi
-		echo "$demo: mp4 ok, gif missing — rebuilding gif from existing mp4"
-		make_gif "$mp4" "$gif"
-		echo "done: $gif ($(du -h "$gif" | cut -f1))"
+		echo "skip $demo (mp4 already in $OUTDIR)"
 		return 0
 	fi
 
@@ -280,8 +298,7 @@ capture_one() {
 		return 1
 	fi
 
-	make_gif "$mp4" "$gif"
-	echo "done: $mp4 ($(du -h "$mp4" | cut -f1)), $gif ($(du -h "$gif" | cut -f1))"
+	echo "done: $mp4 ($(du -h "$mp4" | cut -f1))"
 }
 
 # --- main ------------------------------------------------------------------
