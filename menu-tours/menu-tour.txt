@@ -13,23 +13,109 @@
 # restore_settings (after rec_stop) puts them back. Drop both to record with the
 # messages/watermark visible.
 
-wait 1000                  # let the menu settle + background preload finish
-inhibit_settings           # hide watermark + console messages for a clean shot
+# ##### Preamble ################################################################
+
+wait 1000         # let the menu settle + background preload finish
+inhibit_settings  # hide watermark + console messages for a clean shot
 mark rec_start
 
-click "Configuration"      # open the config sub-page
-wait 1800
-key down                   # drift down a couple of rows so motion is visible
-wait 400
-key down
-wait 1200
-back                       # return to the root menu
-wait 1200
+# ###### Root Menu ########################################################################
 
-click "Game"               # open the game picker
+# click "Game"
+key enter
+
+
+# ####### Game Picker ###################################################################
+
 wait 1800
-back
-wait 1500
+# over right 3x
+key right
+wait 500
+key right
+wait 500
+key right
+
+wait 2000
+
+# over left 3x (back to the first)
+key left
+wait 500
+key left
+wait 500
+key left
+
+# enter on Half-Life
+wait 500
+key enter
+
+# ####### Game Menu ###################################################################
+
+# down to chapters
+wait 1000
+key down
+wait 500
+key enter
+
+# ####### Chapters Menu ################################################################
+
+# down to Anomalous Materials
+wait 500
+key down
+wait 500
+key enter
+
+# #### In-Game ###########################################################################
+
+# play for 2 seconds
+wait 2000
+
+# back to the menu
+open_menu
+
+# ##### Mid-Game Menu ####################################################################
+
+# Down to the Configuration button
+wait 500
+key down
+wait 500
+key down
+wait 500
+key down
+wait 500
+key down
+
+wait 500
+key enter
+
+# ####### Configuration ###################################################################
+
+# ### Video
+wait 1000
+key pgdn
+
+# ### Audio
+wait 1000
+key pgdn
+
+# ### Controls
+wait 1000
+key pgdn
+
+# ### Interface
+wait 1000
+key pgdn
+
+# ### Gameplay
+wait 1000
+key pgdn
+
+# ### Advanced
+wait 1000
+key pgdn
+
+wait 3000
+
+# ###### Wrap-up ###################################################################
 
 mark rec_stop              # stop recording here
 wait 500                   # let the grab fully stop before restoring
