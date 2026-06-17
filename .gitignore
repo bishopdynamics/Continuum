@@ -29,3 +29,6 @@ game-reference/
 
 # for testing dist, must not commit
 dist-test/
+
+# source GIMP files for image assets
+assets-src/
