@@ -1,0 +1,36 @@
+# Continuum menu tour.
+#   Run:  tools/capture-menu-tour.sh            # this file (menu-tours/menu-tour.txt)
+#         tools/capture-menu-tour.sh my-tour    # menu-tours/my-tour.txt
+#
+# Labels must match the on-screen button text (case/space-insensitive).
+# This take is the OUT-OF-GAME root menu (Game / Configuration / Quit). For an
+# in-game tour, launch into a save first and use Resume / Save / Load / Cheats.
+#
+# Verbs: wait <ms> | click "<label>" | focus "<label>" | key <name> | back |
+#        mark <label> | inhibit_settings | restore_settings
+# Recording is bracketed by `mark rec_start` / `mark rec_stop`. inhibit_settings
+# hides the version watermark + on-screen console messages for a clean GIF;
+# restore_settings (after rec_stop) puts them back. Drop both to record with the
+# messages/watermark visible.
+
+wait 1000                  # let the menu settle + background preload finish
+inhibit_settings           # hide watermark + console messages for a clean shot
+mark rec_start
+
+click "Configuration"      # open the config sub-page
+wait 1800
+key down                   # drift down a couple of rows so motion is visible
+wait 400
+key down
+wait 1200
+back                       # return to the root menu
+wait 1200
+
+click "Game"               # open the game picker
+wait 1800
+back
+wait 1500
+
+mark rec_stop              # stop recording here
+wait 500                   # let the grab fully stop before restoring
+restore_settings           # put the user's overlay settings back
