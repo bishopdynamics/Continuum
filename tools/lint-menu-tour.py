@@ -17,6 +17,8 @@ Grammar (must match Tour.cpp):
     mark <label>                  rec_start / rec_stop bracket the GIF recording
     inhibit_settings              (no args) force the clean-capture settings (overlay off)
     restore_settings              (no args) put them back — call AFTER mark rec_stop
+    open_menu                     (no args) open the menu (e.g. over a running game)
+    close_menu                    (no args) dismiss the menu back to the game
 
 Exit status: 0 if clean (warnings allowed), 1 if any error (or any warning with
 --strict), 2 on usage error.
@@ -27,8 +29,8 @@ Usage:
 import sys
 
 VERBS = {"wait", "click", "focus", "key", "back", "mark",
-         "inhibit_settings", "restore_settings"}
-NOARG = {"back", "inhibit_settings", "restore_settings"}
+         "inhibit_settings", "restore_settings", "open_menu", "close_menu"}
+NOARG = {"back", "inhibit_settings", "restore_settings", "open_menu", "close_menu"}
 KEYS = {"up", "down", "left", "right", "enter", "escape", "back", "tab", "pgup", "pgdn"}
 
 
