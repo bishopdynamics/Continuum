@@ -28,7 +28,19 @@ case "$1" in
     *) GAME=$1; shift ;;
 esac
 
-cd "$(dirname "$0")/dist-test" || { echo "no dist-test/ — run tools/dogfood.sh first" >&2; exit 1; }
+ROOT="$(dirname "$0")"
+
+# refresh the editable overlay assets from redist/ into dist-test/ on every run,
+# so the quick-test path picks up edits to chapter lists, menu art, etc. without
+# a full dogfood rebuild. Mirrors stage_assets in tools/build_all.sh
+# (redist/<dir>/ -> dist-test/<dir>/); engine + game libs still come from a build.
+if [ -d "$ROOT/redist" ] && [ -d "$ROOT/dist-test" ]; then
+    echo ">> syncing redist/ -> dist-test/ ..."
+    cp -av "$ROOT"/redist/. "$ROOT/dist-test/" | sed 's/^/   /'
+    echo ">> redist sync done"
+fi
+
+cd "$ROOT/dist-test" || { echo "no dist-test/ — run tools/dogfood.sh first" >&2; exit 1; }
 
 if [ ! -x ./xash3d ]; then
     echo "engine not built — run tools/dogfood.sh (or tools/build-engine.sh) first" >&2
@@ -46,4 +58,5 @@ fi
 
 # no -console: the in-game toggle governs it (Configuration > Advanced >
 # Console); pass -console or -dev yourself for development sessions
+echo ">> starting game: $GAME ($*)"
 exec ./xash3d -log -game "$GAME" "$@"
