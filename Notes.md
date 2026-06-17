@@ -5,6 +5,9 @@
 
 - in the game menu (with newgame, loadgame, savegame), remove the "preview" image on the right side of the page, it is the same as the background image so it looks weird
 
+- it would be incredibly cool if we could add a "Chapters" button on the game menu (under newgame), with a list of all the chapters in the game, and it takes you to the first level of that chapter. 
+  - out of scope for now: give the user the hazard suit, crowbar, and shotgun (even better, give them only the weapons they should have at this point, but how can we know that?)
+
 - when clicking things in the UI, we get the classic menu sounds (which i like). Can we use these sounds for gamepad navigation too?
 
 - scripted menu tour
@@ -43,6 +46,23 @@ hlsdk fork: https://github.com/bishopdynamics/hlsdk-portable
 
 
 ## Deferred Items
+
+### Deferred: screenshot-each-map (auto chapter thumbnails)
+
+Support for the Chapters menu: an engine feature that captures a screenshot
+right after each map finishes loading and writes it as
+`<gamefolder>_<map>.png` (e.g. `valve_c2a2.png`). These feed the chapter
+thumbnails consumed by the Chapters menu.
+
+- thumbnail convention + placeholder already in place:
+  `redist/continuum/gfx/shell/continuum/chapters/` (see README.txt there)
+- the menu loads `chapters/<gamefolder>_<map>.png`, falling back to
+  `placeholder.png` when absent
+- until this lands, thumbnails are captured/placed by hand
+- open questions: where the engine writes captures (probably the game's
+  writable dir) vs. where they ship from (`redist/continuum`); whether to
+  capture only first-of-chapter maps or every map; framing/timing of the
+  grab (after the frozen preload frame, before the player moves)
 
 ### Deferred: non-linux platform suport
 

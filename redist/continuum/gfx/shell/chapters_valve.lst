@@ -1,0 +1,31 @@
+// Continuum chapter list -- Half-Life (valve)
+//
+// One entry per chapter, parsed left-to-right with COM_ParseFile:
+//     "<map>"   "<chapter name>"   "<loadout>"
+//
+// <loadout> is a space-separated list of entity classnames given to the
+// player when the chapter starts (item_suit / weapon_* / ammo_* / item_*).
+// Default below is suit + crowbar + shotgun; refine per chapter over time.
+// Add e.g. item_battery, ammo_buckshot, weapon_9mmhandgun as desired.
+//
+// The presence of this file is what enables the Chapters button for valve.
+
+"c0a0"   "Black Mesa Inbound"       ""
+"c1a0"   "Anomalous Materials"      ""
+"c1a1"   "Unforeseen Consequences"  "item_suit"
+"c1a2"   "Office Complex"           "item_suit weapon_crowbar weapon_shotgun"
+"c1a3"   "We've Got Hostiles"       "item_suit weapon_crowbar weapon_shotgun"
+"c1a4"   "Blast Pit"                "item_suit weapon_crowbar weapon_shotgun"
+"c2a1"   "Power Up"                 "item_suit weapon_crowbar weapon_shotgun"
+"c2a2"   "On A Rail"                "item_suit weapon_crowbar weapon_shotgun"
+"c2a3"   "Apprehension"             "item_suit weapon_crowbar weapon_shotgun"
+"c2a4"   "Residue Processing"       "item_suit weapon_crowbar weapon_shotgun"
+"c2a4d"  "Questionable Ethics"      "item_suit weapon_crowbar weapon_shotgun"
+"c2a5"   "Surface Tension"          "item_suit weapon_crowbar weapon_shotgun"
+"c3a1"   "Forget About Freeman"     "item_suit weapon_crowbar weapon_shotgun"
+"c3a2"   "Lambda Core"              "item_suit weapon_crowbar weapon_shotgun"
+"c4a1"   "Xen"                      "item_suit weapon_crowbar weapon_shotgun"
+"c4a2"   "Gonarch's Lair"           "item_suit weapon_crowbar weapon_shotgun"
+"c4a2b"  "Interloper"               "item_suit weapon_crowbar weapon_shotgun"
+"c4a3"   "Nihilanth"                "item_suit weapon_crowbar weapon_shotgun"
+"c5a1"   "Endgame"                  "item_suit weapon_crowbar weapon_shotgun"

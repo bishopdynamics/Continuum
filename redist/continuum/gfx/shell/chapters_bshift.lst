@@ -1,0 +1,19 @@
+// Continuum chapter list -- Blue Shift (bshift)
+//
+// One entry per chapter, parsed left-to-right with COM_ParseFile:
+//     "<map>"   "<chapter name>"   "<loadout>"
+//
+// <loadout> is a space-separated list of entity classnames given to the
+// player when the chapter starts (item_suit / weapon_* / ammo_* / item_*).
+// Default below is suit + crowbar + shotgun; refine per chapter over time.
+//
+// The presence of this file is what enables the Chapters button for bshift.
+
+"ba_tram1"     "Living Quarters Outbound"  "item_suit weapon_crowbar weapon_shotgun"
+"ba_security1" "Insecurity"                "item_suit weapon_crowbar weapon_shotgun"
+"ba_canal1"    "Duty Calls"                "item_suit weapon_crowbar weapon_shotgun"
+"ba_yard1"     "Captive Freight"           "item_suit weapon_crowbar weapon_shotgun"
+"ba_xen1"      "Focal Point"               "item_suit weapon_crowbar weapon_shotgun"
+"ba_power1"    "Power Struggle"            "item_suit weapon_crowbar weapon_shotgun"
+"ba_teleport2" "A Leap of Faith"           "item_suit weapon_crowbar weapon_shotgun"
+"ba_outro"     "Deliverance"               "item_suit weapon_crowbar weapon_shotgun"

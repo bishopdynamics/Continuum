@@ -1,0 +1,27 @@
+// Continuum chapter list -- Opposing Force (gearbox)
+//
+// One entry per chapter, parsed left-to-right with COM_ParseFile:
+//     "<map>"   "<chapter name>"   "<loadout>"
+//
+// <loadout> is a space-separated list of entity classnames given to the
+// player when the chapter starts (item_suit / weapon_* / ammo_* / item_*).
+// Default below is suit + crowbar + shotgun; refine per chapter over time.
+//
+// NOTE: Opposing Force has no weapon_crowbar -- Shephard's melee is
+// weapon_knife (and weapon_pipewrench). Swap the default melee per chapter.
+//
+// The presence of this file is what enables the Chapters button for gearbox.
+
+"of0a0"  "Incoming"                 "item_suit weapon_pipewrench weapon_shotgun"
+"of1a1"  "Welcome to Black Mesa"    "item_suit weapon_pipewrench weapon_shotgun"
+"of1a5"  "We Are Pulling Out"       "item_suit weapon_pipewrench weapon_shotgun"
+"of2a1"  "Missing in Action"        "item_suit weapon_pipewrench weapon_shotgun"
+"of2a4"  "Friendly Fire"            "item_suit weapon_pipewrench weapon_shotgun"
+"of3a1"  "We Are Not Alone"         "item_suit weapon_pipewrench weapon_shotgun"
+"of3a4"  "Crush Depth"              "item_suit weapon_pipewrench weapon_shotgun"
+"of4a1"  "Vicarious Reality"        "item_suit weapon_pipewrench weapon_shotgun"
+"of4a4"  "Pit Worm's Nest"          "item_suit weapon_pipewrench weapon_shotgun"
+"of5a1"  "Foxtrot Uniform"          "item_suit weapon_pipewrench weapon_shotgun"
+"of6a1"  "The Package"              "item_suit weapon_pipewrench weapon_shotgun"
+"of6a4b" "Worlds Collide"           "item_suit weapon_pipewrench weapon_shotgun"
+"of7a0"  "Conclusion"               "item_suit weapon_pipewrench weapon_shotgun"
