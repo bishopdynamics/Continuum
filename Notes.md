@@ -6,13 +6,12 @@
 - Test chamber ladder: the shadow on this ladder is about 20 units offset from the actual ladder, horizontally
   - might just be a map error that we can't do anything about, most other ladders are OK
   - bonus note: this ladder's shadows don't move when the flashlight moves, so that's the real bug
+
 - test chamber elevator: the sample elevator does not receive entity shadows, it is a moving brush i think
 
 - the demo "cascade" routinely fails to render some things. Feels like the full data needed to play the demo is not getting loaded. This happens the same if we do `xash3d -playdemo` (like our capture-demo script) and if i just use the "playdemo" command in console
   - its actually worse than i thought: if i load a savegame from around the same area (on the tram, about 10 seconds from arriving at anomolous materials), i get the same issue. We broke this somehow in our changes on June 16th, may need to bisect
   - if i go back and start a new game (which loads all the assets including the tram), it looks fine, and then if i load the savegame or play the demo, it also looks fine. Playdemo and loadgame are not doing preload hook right, or perhaps its a race condition?
-
-- when entering the game picker page, there is a hitch while the backgrounds are loaded. Can we pre-load them at start so that they're warm?
 
 
 ## Menu Tour Scripting System
