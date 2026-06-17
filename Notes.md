@@ -4,6 +4,7 @@
 ## small things
 
 - in the game menu (with newgame, loadgame, savegame), remove the "preview" image on the right side of the page, it is the same as the background image so it looks weird
+
 - when clicking things in the UI, we get the classic menu sounds (which i like). Can we use these sounds for gamepad navigation too?
 
 - scripted menu tour
@@ -12,27 +13,18 @@
   - this would be better than our fixed recording length, only as long as it takes to do all the steps in the script
   - 
 
-- Test chamber ladder: the shadow on this ladder is abour 20 units offset from the actual ladder, horizontally
+- Test chamber ladder: the shadow on this ladder is about 20 units offset from the actual ladder, horizontally
   - might just be a map error that we can't do anything about, most other ladders are OK
 - test chamber elevator: the sample elevator does not receive entity shadows, it is a moving brush i think
+
 - console: lines seem to be limited length and wrap, but it is narrower than the screen width. math was probably meant for 4:3 originally
 
 
-- how do we handle client.so and client_amd64.so ?
-  - user adds a new mod, it only has .dlls
-  - do we need to build them per-game, or can we build them once along with the rest of the binaries, and then copy it into each game folder at startup?
-
 - after changing windowed mode / resolution, sometimes the text size of the menu UI is incorrect until restart
 
-- on a fresh game folder, new game is greyed out??
-
-## medium things
-
-- For world AO calculations, can we filter surfaces that we calculate based on size? I want to skip surfaces smaller than 64 units on either axis. This will fix an issue where there is a tiny 5x10 recessed shelf in a wall, and the floor of the shelf currently gets weird AO that shouldnt be there
-  - we need a slider for this, range 8 to 512, default 64
-
-- I'm seeing an issue where a scientist walking around suddenly becomes darker (like he stepped out of a light), and then as they keep walking they become lit again. I tried turning off all our new features, and it looks like this is a pre-existing feature of xash3D. It's some kind of dynamic lighting on entities from map lights, but it seems to be sampling at a very low rate, or doesn't have fine-grained enough light levels to switch between, because they "pop" between different light levels as they walk around. My question: can we find this feature, and give it some more granularity? We implemented a fix that used bilinear interpolation to smooth out the light levels, but it didnt re
-
+- the demo "cascade" routinely fails to render some things. Feels like the full data needed to play the demo is not getting loaded. This happens the same if we do `xash3d -playdemo` (like our capture-demo script) and if i just use the "playdemo" command in console
+  - its actually worse than i thought: if i load a savegame from around the same area (on the tram, about 10 seconds from arriving at anomolous materials), i get the same issue. We broke this somehow in our changes on June 16th, need to bisect
+  - if i go back and start a new game (which loads all the assets including the tram), it looks fine, and then if i load the savegame or play the demo, it also looks fine. Playdemo and loadgame are not doing preload hook right, or perhaps its a race condition?
 
 ## Remaining roadmap to v1 release
 
