@@ -45,24 +45,28 @@ mainui fork: https://github.com/bishopdynamics/mainui_cpp
 hlsdk fork: https://github.com/bishopdynamics/hlsdk-portable
 
 
-## Deferred Items
+## Map capture & ingest (chapter thumbnails + loadouts)
 
-### Deferred: screenshot-each-map (auto chapter thumbnails)
+Two-step dev workflow to generate chapter thumbnails and starting loadouts by
+just playing the games. Implemented in the game DLLs (hlsdk client.cpp) + a
+host ingest script.
 
-Support for the Chapters menu: an engine feature that captures a screenshot
-right after each map finishes loading and writes it as
-`<gamefolder>_<map>.png` (e.g. `valve_c2a2.png`). These feed the chapter
-thumbnails consumed by the Chapters menu.
+1. Capture: launch a game, open the console (`~`), `sv_capture_maps 1`, then
+   play through start -> finish. On *first arrival* to each map the DLL grabs a
+   clean screenshot (HUD + viewmodel hidden) and dumps the carried weapons/items:
+     - `dist-test/<game>/capture/<map>.png`
+     - `dist-test/<game>/capture/<map>.txt`
+   First-arrival only (re-entering / reloading a save won't clobber it). Do this
+   for valve, gearbox (of), bshift.
+2. Ingest: `tools/ingest-captures.py` (`--dry-run` to preview). Downscales the
+   screenshots into `redist/continuum/gfx/shell/continuum/chapters/<game>_<map>.png`
+   and fills each chapter's loadout column in `chapters_<game>.lst` from the
+   capture of *that chapter's currently-listed map*. Re-runnable; only touches
+   changed loadout tokens. Reassign a chapter's map and re-run to re-pull.
 
-- thumbnail convention + placeholder already in place:
-  `redist/continuum/gfx/shell/continuum/chapters/` (see README.txt there)
-- the menu loads `chapters/<gamefolder>_<map>.png`, falling back to
-  `placeholder.png` when absent
-- until this lands, thumbnails are captured/placed by hand
-- open questions: where the engine writes captures (probably the game's
-  writable dir) vs. where they ship from (`redist/continuum`); whether to
-  capture only first-of-chapter maps or every map; framing/timing of the
-  grab (after the frozen preload frame, before the player moves)
+The captured loadout is just the weapon/item set. The chapter-start apply-hook
+applies the rest of the policy uniformly: health 100, armor 100 (when suited),
+ammo topped to 50% of max per weapon.
 
 ### Deferred: non-linux platform suport
 
