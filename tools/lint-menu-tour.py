@@ -12,13 +12,16 @@ Grammar (must match Tour.cpp):
     wait <ms>                     non-negative integer
     click "<label>"               on-screen button text (quotes recommended)
     focus "<label>"               same, but don't activate
-    key <name>                    up|down|left|right|enter|escape|back|tab|pgup|pgdn
+    key <name> [count] [delay]    up|down|left|right|enter|escape|back|tab|pgup|pgdn;
+                                  optional count (>=1) presses, delay ms between
     back                          (no args)
     mark <label>                  rec_start / rec_stop bracket the GIF recording
     inhibit_settings              (no args) force the clean-capture settings (overlay off)
     restore_settings              (no args) put them back — call AFTER mark rec_stop
     open_menu                     (no args) open the menu (e.g. over a running game)
     close_menu                    (no args) dismiss the menu back to the game
+    play_demo <name> [wait]       playdemo <name>; optional `wait` blocks until it ends
+    console <command>             exec a console command (forces sv_cheats 1 first)
 
 Exit status: 0 if clean (warnings allowed), 1 if any error (or any warning with
 --strict), 2 on usage error.
@@ -29,7 +32,8 @@ Usage:
 import sys
 
 VERBS = {"wait", "click", "focus", "key", "back", "mark",
-         "inhibit_settings", "restore_settings", "open_menu", "close_menu"}
+         "inhibit_settings", "restore_settings", "open_menu", "close_menu",
+         "play_demo", "console"}
 NOARG = {"back", "inhibit_settings", "restore_settings", "open_menu", "close_menu"}
 KEYS = {"up", "down", "left", "right", "enter", "escape", "back", "tab", "pgup", "pgdn"}
 
@@ -107,8 +111,37 @@ def lint_file(path, strict=False):
                 name = tokens[0].lower()
                 if name not in KEYS:
                     err(f"unknown key: {tokens[0]} (use up|down|left|right|enter|escape|back|tab|pgup|pgdn)")
-                if len(tokens) > 1:
-                    warn(f"extra text after key: {' '.join(tokens[1:])}")
+                # optional: <count> [delay-ms]
+                if len(tokens) >= 2 and not (tokens[1].isdigit() and int(tokens[1]) >= 1):
+                    err(f"key count must be a positive integer, got: {tokens[1]}")
+                if len(tokens) >= 3 and not tokens[2].isdigit():
+                    err(f"key delay must be a non-negative integer (ms), got: {tokens[2]}")
+                if len(tokens) > 3:
+                    warn(f"extra text after 'key <name> <count> <delay>': {' '.join(tokens[3:])}")
+
+        elif verb == "play_demo":
+            r = rest.strip()
+            if not r:
+                err('play_demo needs a demo name, e.g. play_demo "intro" wait')
+            else:
+                if r.startswith('"'):
+                    end = r.find('"', 1)
+                    if end < 0:
+                        err("unterminated quote")
+                        tail = []
+                    else:
+                        if not r[1:end]:
+                            err("play_demo needs a demo name")
+                        tail = r[end + 1:].split()
+                else:
+                    tail = r.split()[1:]
+                if len(tail) > 1 or (tail and tail[0].lower() != "wait"):
+                    err(f"play_demo takes a name and an optional 'wait'; got extra: {' '.join(tail)} "
+                        f"(quote the name if it has spaces)")
+
+        elif verb == "console":
+            if not rest.strip():
+                err("console needs a command, e.g. console r_flashlight_shadows 1")
 
         elif verb in NOARG:
             if rest.strip():

@@ -6,20 +6,25 @@
 # This take is the OUT-OF-GAME root menu (Game / Configuration / Quit). For an
 # in-game tour, launch into a save first and use Resume / Save / Load / Cheats.
 #
-# Verbs: wait <ms> | click "<label>" | focus "<label>" | key <name> | back |
-#        mark <label> | inhibit_settings | restore_settings
+# Verbs: wait <ms> | click "<label>" | focus "<label>" | key <name> [count] [delay] |
+#        back | mark <label> | inhibit_settings | restore_settings | open_menu |
+#        close_menu | play_demo <name> [wait] | console <command>
 # Recording is bracketed by `mark rec_start` / `mark rec_stop`. inhibit_settings
 # hides the version watermark + on-screen console messages for a clean GIF;
 # restore_settings (after rec_stop) puts them back. Drop both to record with the
 # messages/watermark visible.
 
+
 # ##### Preamble ################################################################
 
-wait 1000         # let the menu settle + background preload finish
+# wait 1000         # let the menu settle + background preload finish
 inhibit_settings  # hide watermark + console messages for a clean shot
 mark rec_start
 
 # ###### Root Menu ########################################################################
+
+# let them see our cool menu for a bit
+# wait 5000
 
 # click "Game"
 key enter
@@ -27,25 +32,18 @@ key enter
 
 # ####### Game Picker ###################################################################
 
-wait 1800
-# over right 3x
-key right
-wait 500
-key right
-wait 500
-key right
+wait 1000
 
-wait 2000
+# over right 3x
+key right 3 250
+
+wait 1000
 
 # over left 3x (back to the first)
-key left
-wait 500
-key left
-wait 500
-key left
+key left 3 250
 
 # enter on Half-Life
-wait 500
+wait 250
 key enter
 
 # ####### Game Menu ###################################################################
@@ -58,16 +56,41 @@ key enter
 
 # ####### Chapters Menu ################################################################
 
-# down to Anomalous Materials
+# down to questionable ethics
 wait 500
-key down
-wait 500
+key down 10 250
+
+wait 250
 key enter
 
 # #### In-Game ###########################################################################
 
 # play for 2 seconds
-wait 2000
+wait 1500
+
+# give the player some tools, side effect: sv_cheats -> 1
+console give item_suit
+wait 100
+console impulse 101
+wait 100
+console give item_battery
+wait 100
+console give item_battery
+wait 100
+console give item_battery
+
+# need to turn sv_cheats back off
+wait 100
+console sv_cheats 0
+
+wait 3000
+
+
+# play a demo, do not wait for it to finish
+play_demo unforseen
+
+# let the demo play for 10 seconds
+wait 10000
 
 # back to the menu
 open_menu
@@ -76,44 +99,22 @@ open_menu
 
 # Down to the Configuration button
 wait 500
-key down
-wait 500
-key down
-wait 500
-key down
-wait 500
-key down
+key down 4 250
 
-wait 500
+wait 250
 key enter
 
 # ####### Configuration ###################################################################
 
-# ### Video
-wait 1000
-key pgdn
-
-# ### Audio
-wait 1000
-key pgdn
-
-# ### Controls
-wait 1000
-key pgdn
-
-# ### Interface
-wait 1000
-key pgdn
-
-# ### Gameplay
-wait 1000
-key pgdn
+# go thru each tab, stop at Advaned
+key pgdn 5 1000
 
 # ### Advanced
 wait 1000
-key pgdn
 
-wait 3000
+
+# Hold for a little bit
+wait 2000
 
 # ###### Wrap-up ###################################################################
 
