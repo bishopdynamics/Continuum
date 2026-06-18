@@ -1,12 +1,6 @@
 # Notes
 
 
-## Menu Tour Scripting System
-
-Enhancements to our already-awesome menu tour scripting system
-
-- can we handle switching games?
-  - if my script navigates to blue shift, and then the game restarts, i assume our script is gone. can we resume execution?
 
 ## Remaining roadmap to v1 release
 
@@ -27,6 +21,9 @@ hlsdk fork: https://github.com/bishopdynamics/hlsdk-portable
 
 
 ## Map capture & ingest (chapter thumbnails + loadouts)
+
+This is implemented, but user needs to play thru valve/gearbox/bshift to
+capture all the thumbnails and loadout data.
 
 Two-step dev workflow to generate chapter thumbnails and starting loadouts by
 just playing the games. Implemented in the game DLLs (hlsdk client.cpp) + a
@@ -69,28 +66,3 @@ already shows a loading screen.
 - windows: i dont have a machine to test, and I dont care
 - macos: 32bit/64bit compatibility issues
 
-
-### Deferred: FBO-based shadow map (resolution + soft blur) — NOT doing now
-
-The flashlight shadow map currently renders the light's depth into a *corner of the
-visible back-buffer* and copies it out (`glCopyTexSubImage2D`), so its resolution is
-hard-capped to the window size (screen height). It is also desktop-GL-only
-(`#if !XASH_GLES`).
-
-Moving the shadow render into a real off-screen **FBO** (depth-texture attachment)
-would:
-- decouple resolution from the window (up to `GL_MAX_TEXTURE_SIZE`, e.g. 2048/4096)
-  → crisper shadow edges
-- enable a real, wide, *soft* shadow blur (the AO/entity-shadow features get their
-  soft edges from a CPU box-blur of a fake-silhouette coverage bitmap; that trick
-  does NOT transfer to the flashlight, whose shadow is a real hardware depth-compare
-  — blurring that needs an FBO + blur pass, or expensive multi-tap PCF)
-- also simplify/clean up the current render-into-corner + copy hack
-
-Why deferred: it would be the renderer's **first FBO**. The rest of ref/gl is
-deliberately FBO-free for portability (Deck / GLES / GLSL-risk). Platform risk is
-actually low here (the shadow map is already desktop-GL-only, and we'd keep the
-corner method as a fallback), but it's a real architectural line to cross and the
-payoff is quality-only (the acne — the thing that looked bad — is already fixed).
-Revisit only if we decide we want *soft* flashlight shadows; resolution alone isn't
-worth it. One FBO buys both.
