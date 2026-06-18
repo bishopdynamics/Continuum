@@ -8,7 +8,8 @@
 #
 # Verbs: wait <ms> | click "<label>" | focus "<label>" | key <name> [count] [delay] |
 #        back | mark <label> | inhibit_settings | restore_settings | open_menu |
-#        close_menu | play_demo <name> [wait] | console <command>
+#        close_menu | play_demo <name> [wait] | console <command> |
+#        target_game <folder> (wrapper picks the game; default valve)
 # Recording is bracketed by `mark rec_start` / `mark rec_stop`. inhibit_settings
 # hides the version watermark + on-screen console messages for a clean GIF;
 # restore_settings (after rec_stop) puts them back. Drop both to record with the
@@ -17,7 +18,8 @@
 
 # ##### Preamble ################################################################
 
-# wait 1000         # let the menu settle + background preload finish
+target_game gearbox
+
 inhibit_settings  # hide watermark + console messages for a clean shot
 mark rec_start
 

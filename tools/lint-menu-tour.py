@@ -22,6 +22,8 @@ Grammar (must match Tour.cpp):
     close_menu                    (no args) dismiss the menu back to the game
     play_demo <name> [wait]       playdemo <name>; optional `wait` blocks until it ends
     console <command>             exec a console command (forces sv_cheats 1 first)
+    target_game <folder>          which game the wrapper launches (e.g. gearbox); at
+                                  most one, engine ignores it
 
 Exit status: 0 if clean (warnings allowed), 1 if any error (or any warning with
 --strict), 2 on usage error.
@@ -33,7 +35,7 @@ import sys
 
 VERBS = {"wait", "click", "focus", "key", "back", "mark",
          "inhibit_settings", "restore_settings", "open_menu", "close_menu",
-         "play_demo", "console"}
+         "play_demo", "console", "target_game"}
 NOARG = {"back", "inhibit_settings", "restore_settings", "open_menu", "close_menu"}
 KEYS = {"up", "down", "left", "right", "enter", "escape", "back", "tab", "pgup", "pgdn"}
 
@@ -70,6 +72,7 @@ def lint_file(path, strict=False):
 
     have_start = have_stop = False
     have_inhibit = have_restore = False
+    target_game_count = 0
 
     for n, line in enumerate(raw, 1):
         body = strip_comment(line).strip()
@@ -143,6 +146,14 @@ def lint_file(path, strict=False):
             if not rest.strip():
                 err("console needs a command, e.g. console r_flashlight_shadows 1")
 
+        elif verb == "target_game":
+            target_game_count += 1
+            tokens = rest.split()
+            if not tokens:
+                err("target_game needs a game folder, e.g. target_game gearbox")
+            elif len(tokens) > 1:
+                err(f"target_game takes a single game folder, got: {rest.strip()}")
+
         elif verb in NOARG:
             if rest.strip():
                 warn(f"{verb} takes no arguments; ignoring: {rest.strip()}")
@@ -170,6 +181,8 @@ def lint_file(path, strict=False):
         warnings.append(f"{path}: warning: no 'mark rec_stop' — recording will stop on the engine's DONE instead")
     if have_inhibit and not have_restore:
         warnings.append(f"{path}: warning: 'inhibit_settings' without 'restore_settings' — settings stay inhibited until the tour ends")
+    if target_game_count > 1:
+        errors.append(f"{path}: error: {target_game_count} 'target_game' directives — keep at most one (the wrapper reads the first)")
 
     return errors, warnings
 

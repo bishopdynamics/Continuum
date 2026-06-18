@@ -33,6 +33,10 @@
 #   tools/capture-menu-tour.sh                  # menu-tours/menu-tour.txt
 #   tools/capture-menu-tour.sh my-special-tour  # menu-tours/my-special-tour.txt
 #
+# Which game to launch: a `target_game <folder>` line in the tour (e.g.
+# `target_game gearbox`) picks the game; an explicit GAME= override below wins,
+# else the directive, else valve.
+#
 # Env overrides (same as capture-menu-gif.sh):
 #   GAME=valve  WIDTH=1280  HEIGHT=720   GIF_FPS=15  GIF_WIDTH=640
 #   FPS_CAP=60  VSYNC=1     TOUR_DIR=menu-tours  OUT_DIR=doc/media  OUT=<path>
@@ -50,7 +54,7 @@ NAME=$(basename "${1:-menu-tour}" .txt)
 TOUR_DIR=${TOUR_DIR:-menu-tours}
 OUT_DIR=${OUT_DIR:-doc/media}
 SCRIPT="$TOUR_DIR/$NAME.txt"
-GAME=${GAME:-valve}
+GAME_OVERRIDE=${GAME-}   # explicit GAME= env/CLI wins over the tour's target_game
 WIDTH=${WIDTH:-1280}
 HEIGHT=${HEIGHT:-720}
 GIF_FPS=${GIF_FPS:-8}
@@ -63,6 +67,13 @@ START_TIMEOUT=${START_TIMEOUT:-60}
 STOP_TIMEOUT=${STOP_TIMEOUT:-180}
 
 [ -f "$SCRIPT" ] || { echo "tour script not found: $SCRIPT (tours live in $TOUR_DIR/<name>.txt)" >&2; exit 1; }
+
+# the tour may name its game with a `target_game <folder>` directive (the engine
+# ignores it; see Tour.cpp). An explicit GAME= override wins, else the directive,
+# else valve. Match only a real directive line, not a commented-out one.
+TARGET_GAME=$(awk 'tolower($1)=="target_game"{print $2; exit}' "$SCRIPT")
+GAME=${GAME_OVERRIDE:-${TARGET_GAME:-valve}}
+[ -n "$TARGET_GAME" ] && [ -z "$GAME_OVERRIDE" ] && echo "tour targets game: $GAME (from target_game directive)"
 
 # pre-check the tour for typos (unknown verb/key, bad args, missing markers) so a
 # mistake fails here instead of silently doing nothing in the engine.
