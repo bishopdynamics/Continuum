@@ -9,9 +9,6 @@
 
 - test chamber elevator: the sample elevator does not receive entity shadows, it is a moving brush i think
 
-- the demo "cascade" routinely fails to render some things. Feels like the full data needed to play the demo is not getting loaded. This happens the same if we do `xash3d -playdemo` (like our capture-demo script) and if i just use the "playdemo" command in console
-  - its actually worse than i thought: if i load a savegame from around the same area (on the tram, about 10 seconds from arriving at anomolous materials), i get the same issue. We broke this somehow in our changes on June 16th, may need to bisect
-  - if i go back and start a new game (which loads all the assets including the tram), it looks fine, and then if i load the savegame or play the demo, it also looks fine. Playdemo and loadgame are not doing preload hook right, or perhaps its a race condition?
 
 
 ## Menu Tour Scripting System
@@ -68,6 +65,21 @@ host ingest script.
 The captured loadout is just the weapon/item set. The chapter-start apply-hook
 applies the rest of the policy uniformly: health 100, armor 100 (when suited),
 ammo topped to 50% of max per weapon.
+
+### Deferred: make preloaded worlds render-ready (maybe unnecessary)
+
+Follow-up to the demo/savegame "missing tram faces" fix (2026-06-17). A world
+warmed only by `world_preload` has never been through a connect-time render
+build (R_NewMap/GL_BuildLightmaps), so restoring it from the residency cache
+drops moving-brush (`*N`) faces. We sidestep this by forcing a fresh world load
+on cold session entry (load-savegame + demo-start, via `Mod_ForceFreshWorld`),
+keeping the residency fast path for in-game changelevels.
+
+Potential cleaner fix: have `world_preload` build the GL render data up front so
+preloaded worlds are genuinely render-ready, removing the need to force-fresh.
+May not be worth it — the force-fresh costs only one extra parse on a load that
+already shows a loading screen.
+
 
 ### Deferred: non-linux platform suport
 
