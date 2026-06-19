@@ -1,5 +1,8 @@
 # Notes
 
+## Small Things
+
+- AO for a dead body is weaker than the entity shadow, so when entity dies shadow changes strength
 
 
 ## Remaining roadmap to v1 release
@@ -7,8 +10,6 @@
 - complete the items in sections above this section (if any)
 - before any public release: 
   - tighten the flatpak grant (currently --filesystem=home + --device=all)
-  - **revert `sv_capture_maps` default to "0"** (temporarily "1" in dlls/game.cpp
-    across all 3 hlsdk trees so we always capture map data while dogfooding)
   - documentation (see section below)
 
 
