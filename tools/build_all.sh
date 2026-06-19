@@ -28,6 +28,17 @@ stage_assets()
     mkdir -p "$out/continuum"
     cp -a redist/continuum/. "$out/continuum/"
     cp tools/dist/README-DIST.md "$out/README.md"
+
+    # Continuum version stamp read by the menu (RootMenu): the 4-component VERSION
+    # (committed source of truth at the repo root) plus the umbrella short commit,
+    # so any screenshot of the root menu traces to an exact build. "-dirty" is
+    # appended when building from an uncommitted (tracked) tree.
+    local ver commit dirty=""
+    ver=$(tr -d '[:space:]' < VERSION)
+    commit=$(git rev-parse --short=8 HEAD 2>/dev/null || echo unknown)
+    git diff --quiet 2>/dev/null && git diff --cached --quiet 2>/dev/null || dirty="-dirty"
+    mkdir -p "$out/continuum/gfx/shell/continuum"
+    printf '%s-%s%s\n' "$ver" "$commit" "$dirty" > "$out/continuum/gfx/shell/continuum/version.txt"
 }
 
 ensure_binfmt_arm64()
