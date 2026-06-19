@@ -221,10 +221,16 @@ capture_mp4() {
 	force_resolution
 
 	echo "  launching $GAME, warming campaign, capturing $demo at ${WIDTH}x${HEIGHT}..."
+	# -console: enable host.allow_console so Con_Printf is not suppressed. The
+	# "Demo playback started"/"ended" markers we sync on are Con_Printf calls;
+	# on a release build (DEFAULT_ALLOWCONSOLE/DEFAULT_DEV both 0) Con_Printf
+	# early-returns when the console is off, so they'd never reach engine.log and
+	# wait_for_marker would time out ("demo never started") mid-capture. -console
+	# only enables the console, it doesn't open it on screen or add dev spew.
 	# -nowriteconfig: throwaway session; don't persist its transient cvars
 	# (con_notifytime, fps_max, gl_vsync, snd_mute_losefocus). The capture
 	# resolution still persists separately via force_resolution above.
-	./play-continuum.sh "$GAME" -windowed -nowriteconfig -width "$WIDTH" -height "$HEIGHT" \
+	./play-continuum.sh "$GAME" -console -windowed -nowriteconfig -width "$WIDTH" -height "$HEIGHT" \
 		+fps_max "$FPS_CAP" +gl_vsync "$VSYNC" ${SNDARGS[@]+"${SNDARGS[@]}"} >/dev/null 2>&1 &
 	ENGINE_PID=$!
 
