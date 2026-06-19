@@ -3,7 +3,15 @@
 ## Small Things
 
 - AO for a dead body is weaker than the entity shadow, so when entity dies shadow changes strength
+- map-change teleport issue not fixed
+  - on map-change, camera arrives in new map out-of-bounds, and lerps over 4-8 frames to the players actual position, while they continue moving. 
+  - This was an issue we detected before, fixed, and oddly enough i haven't seen the issue again at the specific map-change points that i did before, but now i see it at a new set of map-change points that I dont recall seeing before. This is _much more evident_ in recordings. In actual gameplay, at 60fps or more, the user doesn't see anything (actually, there is some minor impact). On the recording however, we see the camera move from out-of-bounds, thru walls, to the players location very briefly. 
 
+## Feature Creep
+
+- watch-me-play / HLTV
+  - there was a feature of multiplayer half-life (mostly counter-strike) called HLTV, where uers could join a server as a pure-spectator, and they could jump around between all the players in the game and watch from their perspective (firstperson) or behind-cam (thirdperson)
+  - I want to be able to invite another player (also running continuum edition) to spectate, with the option to trade-places (i let my friend take over, playing for a few maps while i spectate). This is essentially a two-client single-player game, where either player can be the "driver", but only one at a time, while the other spectates. 
 
 ## Remaining roadmap to v1 release
 

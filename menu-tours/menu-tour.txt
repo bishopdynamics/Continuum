@@ -26,7 +26,7 @@ mark rec_start
 # ###### Root Menu ########################################################################
 
 # let them see our cool menu for a bit
-# wait 5000
+wait 5000
 
 # click "Game"
 key enter
