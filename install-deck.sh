@@ -24,12 +24,17 @@ RUNTIME=org.freedesktop.Platform/x86_64/25.08
 cd "$(dirname "$0")"
 ART=dist/artifacts/continuum.flatpak
 
-echo "==> building the flatpak bundle (fresh linux-amd64 build + bundle)"
-# go through build_all.sh's 'flatpak' target rather than build-flatpak.sh
-# directly: build-flatpak.sh only rebuilds dist/linux-amd64 when the engine
-# binary is *missing*, so a stale tree would ship an old engine. The flatpak
-# target always rebuilds linux-amd64 first, so the Deck gets current code.
-tools/build_all.sh flatpak
+# Build the bundle if it isn't there yet. The canonical path is `make
+# install-deck`, whose `flatpak` -> `linux` prerequisites always (re)build a
+# fresh bundle before we get here, so this branch only fires when the script is
+# run on its own. `make flatpak` rebuilds linux-amd64 first, so the engine is
+# never stale.
+if [ ! -f "$ART" ]; then
+	echo "==> flatpak bundle missing — building it (make flatpak)"
+	make flatpak
+else
+	echo "==> using existing flatpak bundle: $ART"
+fi
 
 echo "==> checking SSH to $DECK_SSH"
 ssh -o ConnectTimeout=10 "$DECK_SSH" true

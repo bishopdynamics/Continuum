@@ -18,11 +18,11 @@ help:
 	@echo "Half-Life: Continuum Edition"
 	@echo
 	@echo "Distributable builds (Docker; artifacts land in dist/artifacts/):"
-	@echo "  make linux         linux-amd64 tarball + Steam Deck flatpak"
+	@echo "  make linux         linux-amd64 tarball"
 	@echo "  make linux-arm64   linux-arm64 tarball (needs qemu binfmt)"
 	@echo "  make windows       win32 (i686) zip"
 	@echo "  make macos         macOS universal bundle (must run on a Mac)"
-	@echo "  make flatpak       Steam Deck flatpak only"
+	@echo "  make flatpak       Steam Deck flatpak (builds linux first)"
 	@echo
 	@echo "Deploy / run:"
 	@echo "  make install-deck  build flatpak + install on a Steam Deck"
@@ -37,7 +37,7 @@ help:
 ## Distributable builds -------------------------------------------------
 
 linux:
-	tools/build_all.sh flatpak
+	tools/build_all.sh linux-amd64
 
 linux-arm64:
 	tools/build_all.sh linux-arm64
@@ -48,12 +48,15 @@ windows:
 macos:
 	tools/dist/build-macos.sh
 
-flatpak:
-	tools/build_all.sh flatpak
+# the flatpak is just a repackaging of the linux-amd64 dist (single source of
+# truth for what ships), so build that first, then bundle it.
+flatpak: linux
+	tools/dist/build-flatpak.sh
 
 ## Deploy / run --------------------------------------------------------
 
-install-deck:
+# a fresh flatpak (-> linux dist, the single source of truth) then deploy it.
+install-deck: flatpak
 	./install-deck.sh
 
 build-engine:

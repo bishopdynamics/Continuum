@@ -58,10 +58,16 @@ cp "$SRC/xash3d" "$APP/bin/"
 cp "$SRC"/*.so "$SRC"/*.so.* "$APP/lib/"
 install -m755 "$FP/continuum.sh" "$APP/bin/continuum"
 
-# read-only Continuum overlay: valve game .so libs, plus the always-mounted
-# continuum/ content dir (fonts/glyphs/brand mark). NO game content.
-cp -r "$SRC/valve" "$APP/share/continuum/"
-cp -r "$SRC/continuum" "$APP/share/continuum/"
+# read-only Continuum overlay: every game-lib + content folder the linux dist
+# produced (valve, gearbox, bshift, hunger, ...) plus the always-mounted
+# continuum/ assets. The linux dist is the single source of truth for what
+# ships, so we copy ALL of its directories rather than naming them here — the
+# engine binary, support libs and launcher are the only top-level *files* and
+# were pulled into bin/lib above. Still NO game content: these dirs hold the
+# .so libs (dlls/cl_dlls) + Continuum assets only.
+for d in "$SRC"/*/; do
+	cp -r "$d" "$APP/share/continuum/"
+done
 
 # desktop entry + icon (lambda mark, our own asset)
 cp "$FP/$APPID.desktop" "$APP/share/applications/"
