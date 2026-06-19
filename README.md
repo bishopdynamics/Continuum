@@ -18,12 +18,14 @@ content, story, or gameplay. You play the same Half-Life you already own.
 
 - a new **unified, controller-first menu UI**, with a few existing settings
   exposed that the stock menu hid — mostly a new "theme" over the same engine;
-- a **level streaming system** — play the whole campaign with no loading
+- controller bindings by default
+- a **"level streaming system"** — play the whole campaign with no loading
   screens ([details](doc/level-streaming.md));
 - an optional, configurable **projected flashlight**
   ([details](doc/flashlight.md));
 - supplemental **ambient occlusion**, contact and world
   ([details](doc/ambient-occlusion.md));
+- reworked entity shadows (Xash3D already had experimental entity shadows, I just tweaked it)
 - a few additional **quality-of-life settings**, all optional.
 
 ## Getting started
@@ -41,9 +43,8 @@ in short, `git clone --recurse-submodules`, then `make play`.
 
 ## Compatibility
 
-- **Games & mods:** the same expansions and mods supported by upstream
-  Xash3D-FWGS work here (Opposing Force, Blue Shift, They Hunger, Uplink, and
-  more) — each streams seamlessly with no per-game setup.
+- **Games & mods:** primary support: Half-Life, Opposing Force, Blue Shift, Uplink, They Hunger, USS darkstar. However, the same expansions and mods supported by upstream Xash3D-FWGS should work
+  - Use Steam version of games where available
 - **Savegames:** existing Xash3D-FWGS savegames should load (not exhaustively
   tested).
 
