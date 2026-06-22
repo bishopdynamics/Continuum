@@ -71,9 +71,13 @@ already shows a loading screen.
   SDL2 2.32.10 framework in ~/Library/Frameworks (NOT brew's sdl2 = sdl2-compat
   over SDL3). `tools/build-engine.sh` + `tools/dist/build-game-libs.py` now
   branch on OS; `make play` builds engine + all 4 game libs (valve/gearbox/
-  bshift/hunger) and the engine launches (apple-arm64) — only missing piece for
-  a real gameplay test is dropping HL game content into dist-test/.
-  STILL TODO: flesh out tools/dist/build-macos.sh into a real distributable
-  bundle (universal arm64+x86_64 via lipo, bundle SDL2.framework, codesign/
-  notarize for a Gatekeeper-clean download).
+  bshift/hunger) and the engine launches (apple-arm64).
+- macos dist bundle (2026-06-22): `make macos` builds Continuum.app (arm64),
+  ad-hoc signed, ~30 MB zip in dist/artifacts/. Same read-only-install model as
+  the flatpak: shipped assets + game libs are the engine's RODIR (Contents/
+  Resources), the player's game folders + saves live in the writable BASEDIR
+  ~/Library/Application Support/Continuum (launcher sets XASH3D_RODIR/BASEDIR;
+  first run opens that folder + a dialog). Verified launching with content.
+  STILL TODO: notarization (Developer ID + notarytool + stapler) for a
+  Gatekeeper-clean download; universal arm64+x86_64 via lipo.
 
