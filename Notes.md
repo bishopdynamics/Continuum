@@ -1,5 +1,13 @@
 # Notes
 
+## Github Repositories
+
+Umbrella project: https://github.com/bishopdynamics/Continuum
+xash3d fork: https://github.com/bishopdynamics/xash3d-fwgs
+mainui fork: https://github.com/bishopdynamics/mainui_cpp
+hlsdk fork: https://github.com/bishopdynamics/hlsdk-portable
+
+
 ## Small Things
 
 - AO for a dead body is weaker than the entity shadow, so when entity dies shadow changes strength
@@ -13,20 +21,6 @@
   - there was a feature of multiplayer half-life (mostly counter-strike) called HLTV, where uers could join a server as a pure-spectator, and they could jump around between all the players in the game and watch from their perspective (firstperson) or behind-cam (thirdperson)
   - I want to be able to invite another player (also running continuum edition) to spectate, with the option to trade-places (i let my friend take over, playing for a few maps while i spectate). This is essentially a two-client single-player game, where either player can be the "driver", but only one at a time, while the other spectates. 
 
-## Remaining roadmap to v1 release
-
-- complete the items in sections above this section (if any)
-- before any public release: 
-  - tighten the flatpak grant (currently --filesystem=home + --device=all)
-  - documentation (see section below)
-
-
-## Github Repositories
-
-Umbrella project: https://github.com/bishopdynamics/Continuum
-xash3d fork: https://github.com/bishopdynamics/xash3d-fwgs
-mainui fork: https://github.com/bishopdynamics/mainui_cpp
-hlsdk fork: https://github.com/bishopdynamics/hlsdk-portable
 
 
 ## Map capture & ingest (chapter thumbnails + loadouts)
@@ -68,30 +62,4 @@ Potential cleaner fix: have `world_preload` build the GL render data up front so
 preloaded worlds are genuinely render-ready, removing the need to force-fresh.
 May not be worth it — the force-fresh costs only one extra parse on a load that
 already shows a loading screen.
-
-
-### Non-linux platform support
-
-- windows: i dont have a machine to test, and I dont care
-- macos (2026-06-21): native dev build WORKS on Apple Silicon (arm64). The old
-  "32/64-bit" worry was moot — we build every game lib from hlsdk source, so an
-  arm64 Mac just builds arm64 engine + arm64 game-lib dylibs. Toolchain: real
-  SDL2 2.32.10 framework in ~/Library/Frameworks (NOT brew's sdl2 = sdl2-compat
-  over SDL3). `tools/build-engine.sh` + `tools/dist/build-game-libs.py` now
-  branch on OS; `make play` builds engine + all 4 game libs (valve/gearbox/
-  bshift/hunger) and the engine launches (apple-arm64).
-- macos dist bundle (2026-06-22): `make macos` builds Continuum.app (arm64),
-  ad-hoc signed, ~30 MB zip in dist/artifacts/. Same read-only-install model as
-  the flatpak: shipped assets + game libs are the engine's RODIR (Contents/
-  Resources), the player's game folders + saves live in the writable BASEDIR
-  ~/Library/Application Support/Continuum (launcher sets XASH3D_RODIR/BASEDIR;
-  first run opens that folder + a dialog). Verified launching with content.
-- macos notarization (2026-06-22): DONE. build-macos.sh signs (Developer ID +
-  hardened runtime) + notarizes + staples when CONTINUUM_SIGN_ID +
-  CONTINUUM_NOTARY_PROFILE are set (see tools/dist/macos/README-SIGNING.md).
-  Produced a notarized arm64 bundle: spctl -> "accepted, Notarized Developer
-  ID", staple valid, passes Gatekeeper from a quarantined download. Signing
-  identity "Developer ID Application: James Bishop (8FWB63VG2N)", notary via
-  App Store Connect API key stored as notarytool profile "continuum-notary".
-  STILL TODO: universal arm64+x86_64 via lipo (currently arm64-only).
 

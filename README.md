@@ -9,6 +9,8 @@ visual and quality-of-life extras. Same game, same content, smoother ride.
 
 ![The Continuum menu](doc/media/menu-tour.gif)
 
+![Gameplay: Unforeseen Consequences](https://youtu.be/DVSHgFvknj0)
+
 ## What this is — and isn't
 
 **It is not** a mod, a remaster, or a content pack. There is no new or modified

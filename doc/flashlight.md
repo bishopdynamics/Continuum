@@ -14,8 +14,7 @@ turn it on.
 - **Texture-aware lighting.** The cone can modulate by the surface texture it
   lands on rather than flat-adding white.
 
-It stays faithful to the original feel — it lights the same way the HL
-flashlight always did, just with a defined beam shape and shadows.
+
 
 ## Tuning it
 

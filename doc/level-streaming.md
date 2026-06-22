@@ -17,10 +17,9 @@ swaps maps in roughly a single frame.
   it from memory in well under a millisecond instead of reloading from disk.
 
 Every HL1 transition area blocks line of sight into the next map by design, so
-the invisible swap is perceptually seamless — you don't catch the engine in the
-act.
+the swap leaves no exposed geometry. Of course, there are slight differences in texture alignment and baked lighting that can be noticed.
 
-## How it works (briefly)
+## How it works
 
 The engine keeps parsed world models resident across changelevels
 (`mod_world_residency`), holds transition state in memory instead of writing
