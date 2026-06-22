@@ -26,7 +26,7 @@ mark rec_start
 # ###### Root Menu ########################################################################
 
 # let them see our cool menu for a bit
-wait 5000
+wait 4000
 
 # click "Game"
 key enter
@@ -50,17 +50,17 @@ key enter
 
 # ####### Game Menu ###################################################################
 
-# down to chapters
+# down to Load Game
 wait 1000
 key down
 wait 500
 key enter
 
-# ####### Chapters Menu ################################################################
+# ####### Load Game Menu ################################################################
 
 # down to questionable ethics
 wait 500
-key down 10 250
+key down 1 250
 
 wait 250
 key enter
@@ -70,29 +70,29 @@ key enter
 # play for 2 seconds
 wait 1500
 
-# give the player some tools, side effect: sv_cheats -> 1
-console give item_suit
-wait 100
-console impulse 101
-wait 100
-console give item_battery
-wait 100
-console give item_battery
-wait 100
-console give item_battery
+# # give the player some tools, side effect: sv_cheats -> 1
+# console give item_suit
+# wait 100
+# console impulse 101
+# wait 100
+# console give item_battery
+# wait 100
+# console give item_battery
+# wait 100
+# console give item_battery
 
-# need to turn sv_cheats back off
-wait 100
-console sv_cheats 0
+# # need to turn sv_cheats back off
+# wait 100
+# console sv_cheats 0
 
-wait 3000
+# wait 3000
 
 
 # play a demo, do not wait for it to finish
-play_demo unforseen
+# play_demo unforseen
 
 # let the demo play for 10 seconds
-wait 10000
+# wait 10000
 
 # back to the menu
 open_menu
@@ -112,8 +112,6 @@ key enter
 key pgdn 5 1000
 
 # ### Advanced
-wait 1000
-
 
 # Hold for a little bit
 wait 2000
