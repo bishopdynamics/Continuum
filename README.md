@@ -67,8 +67,7 @@ From another machine you can build and install onto a Deck over SSH in one step:
 2. Copy your retail `valve/` folder in next to `xash3d.exe`.
 3. Double-click `xash3d.exe` (an expansion: add `-game gearbox` to the command line).
 
-This is a 32-bit build, primarily validated under Wine; reports from real
-Windows hardware are welcome.
+This is a 32-bit build, aiming for max compatibility with mods that provide their own game dll.
 
 ### macOS
 
@@ -84,6 +83,8 @@ Windows hardware are welcome.
 
 Building it yourself instead? See **[doc/building.md](doc/building.md)** —
 in short, `git clone --recurse-submodules`, then `make play`.
+
+NOTE: it should be trivial to build this for x86_64 macOS, but I don't have access to one to validate.
 
 ## Compatibility
 
