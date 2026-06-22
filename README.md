@@ -30,13 +30,57 @@ content, story, or gameplay. You play the same Half-Life you already own.
 
 ## Getting started
 
-Continuum needs the original Half-Life game data — it doesn't ship any.
+Continuum needs the original Half-Life game data — it doesn't ship any. Grab the
+release build for your platform (or [build from source](doc/building.md)), then
+follow the steps below. Expansions and mods install exactly like `valve` — add
+their folder alongside it (Opposing Force `gearbox`, Blue Shift `bshift`, They
+Hunger `hunger`, …) and select them in-game from the menu's Game page, or pass
+`-game gearbox` on platforms with a command line.
 
-1. Get a build (release artifacts: linux-amd64 tarball, Steam Deck flatpak,
-   Windows, macOS) **or** [build from source](doc/building.md).
-2. Drop your retail Steam `valve/` folder (or an expansion/mod folder) in next
-   to the engine.
-3. Launch — pick your game from the menu and play.
+### Linux
+
+1. Extract `continuum-linux-amd64.tar.gz`.
+2. Copy your retail `valve/` folder into the extracted folder, next to `xash3d.sh`.
+3. Run `./xash3d.sh` (an expansion: `./xash3d.sh -game gearbox`).
+
+### Flatpak (Steam Deck)
+
+1. Install the bundle: `flatpak install --user ./continuum.flatpak`.
+2. Add your game data to the app's data dir. If Half-Life is on the internal
+   drive, symlink it (no copy):
+
+   ```sh
+   ln -sfn ~/.local/share/Steam/steamapps/common/Half-Life/valve \
+     ~/.var/app/org.continuum.HalfLife/data/valve
+   ```
+
+   Expansions go next to it (`.../data/gearbox`, `.../data/bshift`, …).
+3. Launch with `flatpak run org.continuum.HalfLife`, or add it to Steam as a
+   non-Steam game and play from Game Mode.
+
+From another machine you can build and install onto a Deck over SSH in one step:
+`DECK_SSH=deck@steamdeck.local make install-deck`.
+
+### Windows
+
+1. Extract `continuum-win32.zip`.
+2. Copy your retail `valve/` folder in next to `xash3d.exe`.
+3. Double-click `xash3d.exe` (an expansion: add `-game gearbox` to the command line).
+
+This is a 32-bit build, primarily validated under Wine; reports from real
+Windows hardware are welcome.
+
+### macOS
+
+**Apple Silicon (arm64) only — Intel Macs are not supported.**
+
+1. Unzip `continuum-macos-arm64.zip` and move `Continuum.app` to Applications
+   (optional).
+2. Launch it once. With no game data present it opens
+   `~/Library/Application Support/Continuum/` and prompts you for your files.
+3. Copy your retail `valve/` folder into that folder (expansions too — `gearbox`,
+   `bshift`, `hunger`), then launch again. Switch between installed games from
+   the in-game menu's Game page.
 
 Building it yourself instead? See **[doc/building.md](doc/building.md)** —
 in short, `git clone --recurse-submodules`, then `make play`.
