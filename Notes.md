@@ -78,6 +78,12 @@ already shows a loading screen.
   Resources), the player's game folders + saves live in the writable BASEDIR
   ~/Library/Application Support/Continuum (launcher sets XASH3D_RODIR/BASEDIR;
   first run opens that folder + a dialog). Verified launching with content.
-  STILL TODO: notarization (Developer ID + notarytool + stapler) for a
-  Gatekeeper-clean download; universal arm64+x86_64 via lipo.
+- macos notarization (2026-06-22): DONE. build-macos.sh signs (Developer ID +
+  hardened runtime) + notarizes + staples when CONTINUUM_SIGN_ID +
+  CONTINUUM_NOTARY_PROFILE are set (see tools/dist/macos/README-SIGNING.md).
+  Produced a notarized arm64 bundle: spctl -> "accepted, Notarized Developer
+  ID", staple valid, passes Gatekeeper from a quarantined download. Signing
+  identity "Developer ID Application: James Bishop (8FWB63VG2N)", notary via
+  App Store Connect API key stored as notarytool profile "continuum-notary".
+  STILL TODO: universal arm64+x86_64 via lipo (currently arm64-only).
 
