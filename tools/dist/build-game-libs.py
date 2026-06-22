@@ -53,7 +53,11 @@ IN_CONTAINER = Path("/src/hlsdk-portable").is_dir()
 SRC = Path(os.environ.get("SRC") or ("/src/hlsdk-portable" if IN_CONTAINER else REPO / "hlsdk-portable"))
 OUT = Path(os.environ.get("OUT") or ("/out" if IN_CONTAINER else REPO / "dist-test"))
 HLSDK = Path(os.environ.get("HLSDK") or "/tmp/b/hlsdk")
-CONFIGURE_FLAGS = os.environ.get("CONFIGURE_FLAGS", "-T release -8")
+# Linux/win containers set this explicitly per-target. The default serves a bare
+# host run: macOS builds for its native arch (no -8; arm64 DEST_CPU is auto),
+# Linux defaults to 64-bit.
+_DEFAULT_FLAGS = "-T release" if platform.system() == "Darwin" else "-T release -8"
+CONFIGURE_FLAGS = os.environ.get("CONFIGURE_FLAGS", _DEFAULT_FLAGS)
 FORCE = os.environ.get("FORCE", "0") == "1"
 
 # Linux lib suffix this target produces (hl_amd64.so / hl_arm64.so), used for the
@@ -103,20 +107,24 @@ def read_mod_options(repo, ref):
 
 
 def ensure_hlsdk_copy():
-    """One-time writable copy of hlsdk-portable (with .git) so we can switch
-    branches; SRC may be read-only. Reused across runs."""
+    """One-time independent clone of hlsdk-portable so we can checkout/build any
+    branch without touching SRC (which may be read-only). Reused across runs.
+
+    A `git clone --local` (not a raw tar copy) so this works whether SRC's .git
+    is an absorbed directory OR a gitlink FILE — the latter is what a fresh
+    `git clone --recursive` produces for a submodule, and its relative
+    "gitdir: ../.git/modules/..." pointer breaks under a plain copy."""
     if (HLSDK / ".git").exists():
         return
-    HLSDK.mkdir(parents=True, exist_ok=True)
-    # tar preserves the real .git dir (and is fast); SRC's own build/ is excluded.
-    subprocess.check_call(
-        f'( cd "{SRC}" && tar cf - --exclude=./build . ) | tar xf - -C "{HLSDK}"',
-        shell=True,
-    )
+    HLSDK.parent.mkdir(parents=True, exist_ok=True)
+    # --local: no network, objects hardlinked/copied from SRC. --no-checkout:
+    # _build_one checks out a detached ref per game anyway.
+    subprocess.check_call(["git", "clone", "--local", "--no-checkout", str(SRC), str(HLSDK)])
+    # clone only brings SRC's local heads; the per-mod branches we build live in
+    # SRC's remote-tracking refs (origin/master, origin/opfor, ...) — copy those.
+    subprocess.check_call(["git", "-C", str(HLSDK), "fetch", "--no-tags", str(SRC),
+                           "+refs/remotes/origin/*:refs/remotes/origin/*"])
     subprocess.run(["git", "-C", str(HLSDK), "config", "--add", "safe.directory", str(HLSDK)])
-    # the source may have branches checked out in worktrees (paths absent here);
-    # prune the stale registrations (we check out detached anyway).
-    subprocess.run(["git", "-C", str(HLSDK), "worktree", "prune"])
 
 
 # --------------------------------------------------------------------------- #

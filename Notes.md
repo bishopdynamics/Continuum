@@ -62,8 +62,18 @@ May not be worth it — the force-fresh costs only one extra parse on a load tha
 already shows a loading screen.
 
 
-### Deferred: non-linux platform suport
+### Non-linux platform support
 
 - windows: i dont have a machine to test, and I dont care
-- macos: 32bit/64bit compatibility issues
+- macos (2026-06-21): native dev build WORKS on Apple Silicon (arm64). The old
+  "32/64-bit" worry was moot — we build every game lib from hlsdk source, so an
+  arm64 Mac just builds arm64 engine + arm64 game-lib dylibs. Toolchain: real
+  SDL2 2.32.10 framework in ~/Library/Frameworks (NOT brew's sdl2 = sdl2-compat
+  over SDL3). `tools/build-engine.sh` + `tools/dist/build-game-libs.py` now
+  branch on OS; `make play` builds engine + all 4 game libs (valve/gearbox/
+  bshift/hunger) and the engine launches (apple-arm64) — only missing piece for
+  a real gameplay test is dropping HL game content into dist-test/.
+  STILL TODO: flesh out tools/dist/build-macos.sh into a real distributable
+  bundle (universal arm64+x86_64 via lipo, bundle SDL2.framework, codesign/
+  notarize for a Gatekeeper-clean download).
 
