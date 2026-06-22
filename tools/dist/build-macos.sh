@@ -122,21 +122,59 @@ if [ -f "$ICON_SRC" ] && command -v iconutil >/dev/null && command -v sips >/dev
 	iconutil -c icns "$ICONSET" -o "$RES/Continuum.icns" 2>/dev/null || true
 fi
 
-# --- ad-hoc codesign ----------------------------------------------------------
-# Not a Developer-ID signature (downloads still need notarization to be
-# Gatekeeper-clean — that's a later pass), but ad-hoc signing keeps a locally
-# built .app launchable and is required for the bundled dylibs on arm64.
-echo "=== codesign (ad-hoc) ==="
-codesign --force --deep --sign - "$APP" 2>/dev/null || \
-	echo "  (ad-hoc codesign failed — app still runs locally if you clear quarantine)"
+# --- codesign -----------------------------------------------------------------
+# With CONTINUUM_SIGN_ID set to a "Developer ID Application: NAME (TEAMID)"
+# identity, sign inside-out with the hardened runtime + a secure timestamp, so
+# the bundle can be notarized. Without it, fall back to an ad-hoc signature —
+# fine for local runs, but a *downloaded* ad-hoc app is Gatekeeper-quarantined.
+SIGN_ID=${CONTINUUM_SIGN_ID:-}
+ENTITLEMENTS=$MACDIST/entitlements.plist
+if [ -n "$SIGN_ID" ]; then
+	echo "=== codesign (Developer ID: $SIGN_ID) ==="
+	sign() { codesign --force --options runtime --timestamp --sign "$SIGN_ID" "$@"; }
+	# 1) nested code first: engine + per-mod game-lib dylibs, then the framework
+	while IFS= read -r -d '' f; do sign "$f"; done \
+		< <(find "$MACOS" "$RES" -name '*.dylib' -print0)
+	sign "$FRW/SDL2.framework"
+	# 2) the executable the launcher exec's (carries the entitlements)
+	sign --entitlements "$ENTITLEMENTS" "$MACOS/xash3d"
+	# 3) the bundle itself, last
+	sign --entitlements "$ENTITLEMENTS" "$APP"
+	codesign --verify --deep --strict "$APP" && echo "  signature OK"
+else
+	echo "=== codesign (ad-hoc — set CONTINUUM_SIGN_ID to enable notarization) ==="
+	codesign --force --deep --sign - "$APP" 2>/dev/null || \
+		echo "  (ad-hoc codesign failed — app still runs locally if you clear quarantine)"
+fi
 
 # --- package ------------------------------------------------------------------
 mkdir -p "$DIST/artifacts"
 OUT=$DIST/artifacts/continuum-macos-$ARCH.zip
 ditto -c -k --sequesterRsrc --keepParent "$APP" "$OUT"
 
+# --- notarize + staple --------------------------------------------------------
+# Needs a real Developer ID signature AND a stored notarytool keychain profile
+# (CONTINUUM_NOTARY_PROFILE — create once with `xcrun notarytool
+# store-credentials`). Submits the zip, waits for Apple, staples the ticket onto
+# the .app, then re-zips so the artifact carries the ticket (passes Gatekeeper
+# offline on first launch).
+NOTARY_PROFILE=${CONTINUUM_NOTARY_PROFILE:-}
+if [ -n "$SIGN_ID" ] && [ -n "$NOTARY_PROFILE" ]; then
+	echo "=== notarize (profile: $NOTARY_PROFILE) ==="
+	xcrun notarytool submit "$OUT" --keychain-profile "$NOTARY_PROFILE" --wait
+	echo "=== staple ==="
+	xcrun stapler staple "$APP"
+	xcrun stapler validate "$APP" && echo "  staple OK"
+	rm -f "$OUT"
+	ditto -c -k --sequesterRsrc --keepParent "$APP" "$OUT"   # re-zip the stapled app
+elif [ -n "$NOTARY_PROFILE" ]; then
+	echo "=== notarize SKIPPED — needs a Developer ID signature (set CONTINUUM_SIGN_ID) ==="
+fi
+
 echo
 echo "==== done ===="
 echo "  app:      $APP"
 echo "  artifact: $OUT ($(du -h "$OUT" | cut -f1))"
+echo "  signing:  ${SIGN_ID:-ad-hoc (local only)}"
+echo "  notarized: $([ -n "$SIGN_ID" ] && [ -n "$NOTARY_PROFILE" ] && echo yes || echo no)"
 echo "  player game data goes in: ~/Library/Application Support/Continuum/valve"
