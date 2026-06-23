@@ -10,10 +10,14 @@ hlsdk fork: https://github.com/bishopdynamics/hlsdk-portable
 
 ## Small Things
 
+- [DONE 2026-06-22] for `sv_capture_maps 1` (see "map capture & ingest" section below) want a message onscreen: map thumbnail captured for <map> whenever a thumbnail capture happens
+  - onscreen center-print added in hlsdk-portable/dlls/client.cpp Cont_MapCaptureThink (shown after HUD restore so it's not in the screenshot)
+  - skip-if-exists was already implemented (Cont_CaptureExists; console: "<map> already captured, skipping")
 - AO for a dead body is weaker than the entity shadow, so when entity dies shadow changes strength
 - capture-demo.sh: 
   - need to override to windowed mode when capturing
   - need to override console enabled, otherwise the mark verb cannot be seen by the script
+- chapter selection setting does not seem to persist, i have to re-enable it every launch
 
 ## Feature Creep
 

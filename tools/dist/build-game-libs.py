@@ -117,9 +117,11 @@ def ensure_hlsdk_copy():
     if (HLSDK / ".git").exists():
         return
     HLSDK.parent.mkdir(parents=True, exist_ok=True)
-    # --local: no network, objects hardlinked/copied from SRC. --no-checkout:
+    # --local: no network, objects copied from SRC. --no-hardlinks: SRC and HLSDK
+    # may live on different filesystems (bind-mounted /src vs build /tmp), where a
+    # hardlinking clone dies with "Invalid cross-device link". --no-checkout:
     # _build_one checks out a detached ref per game anyway.
-    subprocess.check_call(["git", "clone", "--local", "--no-checkout", str(SRC), str(HLSDK)])
+    subprocess.check_call(["git", "clone", "--local", "--no-hardlinks", "--no-checkout", str(SRC), str(HLSDK)])
     # clone only brings SRC's local heads; the per-mod branches we build live in
     # SRC's remote-tracking refs (origin/master, origin/opfor, ...) — copy those.
     subprocess.check_call(["git", "-C", str(HLSDK), "fetch", "--no-tags", str(SRC),
