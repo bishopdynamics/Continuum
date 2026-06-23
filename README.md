@@ -45,7 +45,7 @@ Hunger `hunger`, …) and select them in-game from the menu's Game page, or pass
 2. Copy your retail `valve/` folder into the extracted folder, next to `xash3d.sh`.
 3. Run `./xash3d.sh` (an expansion: `./xash3d.sh -game gearbox`).
 
-### Flatpak (Steam Deck)
+### Flatpak (Steam Deck / Steam Box)
 
 1. Install the bundle: `flatpak install --user ./continuum.flatpak`.
 2. Add your game data to the app's data dir. If Half-Life is on the internal

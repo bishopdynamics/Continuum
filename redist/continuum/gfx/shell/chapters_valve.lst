@@ -12,7 +12,7 @@
 
 "c0a0"   "Black Mesa Inbound"       ""
 "c1a0"   "Anomalous Materials"      ""
-"c1a1"   "Unforeseen Consequences"  "item_suit"
+"c1a0c"  "Unforeseen Consequences"  "item_suit"
 "c1a2"   "Office Complex"           "item_suit weapon_crowbar weapon_shotgun"
 "c1a3"   "We've Got Hostiles"       "item_suit weapon_crowbar weapon_shotgun"
 "c1a4"   "Blast Pit"                "item_suit weapon_crowbar weapon_shotgun"
